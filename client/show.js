@@ -26,7 +26,7 @@ Template.show.onRendered(function () {
   streamer.emit("showInit", { width: window.innerWidth, height: window.innerHeight })
 
   this.autorun(() => {
-    console.log("show RE-RENDERING because of global event : ", GlobalEvent.get())
+    // console.log("show RE-RENDERING because of global event : ", GlobalEvent.get())
 
     if (!GlobalEvent.get()) {
       return
@@ -54,16 +54,16 @@ streamer.on("displayMessage", function (message) {
     // => reflect this change on the reactive dictionary
     message.pointers.forEach((pointerData) => {
       //Get the reactive pointer
-      let pointer = instance.pointers.get(pointerData.id);
-      if(!pointer) {
+      let pointer = instance.pointers.get(pointerData.id)
+      if (!pointer) {
         //It doesn't exist: we don't have any other data than what the server sent us
-        pointer = pointerData;
+        pointer = pointerData
       } else {
         //Apply all the updated data sent by the server
         //(Note that this doesn't erase any of the state we set in this client, e.g. what's being hovered)
-        pointer = Object.assign(pointer, pointerData);
+        pointer = Object.assign(pointer, pointerData)
       }
-      
+
       //Handle events
       if (pointer.mousedown) {
         simulateMouseDown(pointer)
@@ -73,7 +73,7 @@ streamer.on("displayMessage", function (message) {
       }
 
       //Update the hover state, in case the pointer moved
-      checkHover(pointer);
+      checkHover(pointer)
 
       //Save the updated pointer state
       instance.pointers.set(pointer.id, pointer)
@@ -103,7 +103,6 @@ Template.show.helpers({
     return [Template.instance().currentState.get()]
   },
   isAdmin() {
-    console.log("isAdmin?", this)
     return true
   },
 })
@@ -117,14 +116,14 @@ Template.show.events({
 
 simulateMouseUp = function (pointer) {
   const element = getElementAt(pointer.coords)
-  if(element == null) return
+  if (element == null) return
 
   element.classList.remove("clicked")
 }
 
 simulateMouseDown = function (pointer) {
   const element = getElementAt(pointer.coords)
-  if(element == null) return
+  if (element == null) return
 
   // we need to restrict clicks on privileged buttons, like the admin buttons
   // so that only samuel can click on them.
@@ -133,19 +132,19 @@ simulateMouseDown = function (pointer) {
   }
 
   //Trigger a jQuery click event with extra data (the pointer)
-  $(element).trigger("click", {pointer:pointer});
+  $(element).trigger("click", { pointer: pointer })
   element.classList.remove("clicked")
 }
 
 function getElementAt(coords) {
   let element = document.elementFromPoint(coords.x, coords.y)
-  if(element == null) return null
+  if (element == null) return null
 
-  if(element.id == "") {
+  if (element.id == "") {
     //We only interact with elements that have an id, this one doesn't.
     //Find its nearest parent that does have
     element = element.closest("*[id]")
-    if(element == null) return null
+    if (element == null) return null
   }
   return element
 }
@@ -157,16 +156,16 @@ function checkHover(pointer) {
   //"We were hovering something, now we're hovering something else"
   if (prevHoveredElement != currentHoveredElement) {
     //Update the hover counter of the previous element (if there's one)
-    if(prevHoveredElement) {
+    if (prevHoveredElement) {
       addToDataAttribute(prevHoveredElement, "hovered", -1)
-      $(prevHoveredElement).trigger("mouseleave", {pointer:pointer});
+      $(prevHoveredElement).trigger("mouseleave", { pointer: pointer })
     }
     //Update the pointer state
     pointer.hoveredElement = currentHoveredElement ? currentHoveredElement.id : null
     //Update the hover counter of the new element (if there's one)
-    if(currentHoveredElement) {
+    if (currentHoveredElement) {
       addToDataAttribute(currentHoveredElement, "hovered", 1)
-      $(currentHoveredElement).trigger("mouseenter", {pointer:pointer});
+      $(currentHoveredElement).trigger("mouseenter", { pointer: pointer })
     }
   }
 }
@@ -175,7 +174,7 @@ function checkHover(pointer) {
 function addToDataAttribute(element, attr, amount) {
   let value = parseInt(element.getAttribute(attr) ?? 0)
   value += amount
-  if(value == 0) {
+  if (value == 0) {
     element.removeAttribute(attr)
   } else {
     element.setAttribute(attr, value)

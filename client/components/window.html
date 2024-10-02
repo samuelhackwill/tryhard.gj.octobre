@@ -1,7 +1,7 @@
 <template name="window"> </template>
 
 <template name="windowAdmin">
-  <div id="AdminContainer" class="{{isOpen}} w-96 transition-opacity bg-slate-200 m-6 p-6 rounded-md max-w-fit border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg">
+  <div id="AdminContainer" class="w-96 transition-opacity bg-slate-200 m-6 p-6 rounded-md max-w-fit border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg" style="{{isOpen}} ">
     <div id="statepannel" class="opacity-50 mb-2">
       <span>current state : <span class="bg-blue-200 p-1 rounded-xl">{{this.currentState}}</span></span>
     </div>
@@ -52,7 +52,7 @@
           class="m-2 h-6 w-6 rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-red-600" />
         {{/if}}
 
-        <div class="ml-3 inline-block text-xl">{{this}}</div>
+        <div class="ml-3 inline-block text-xl">{{this.value}}</div>
         <!-- <div
       class="absolute left-0 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 transform border-b border-l bg-white"
     ></div> -->

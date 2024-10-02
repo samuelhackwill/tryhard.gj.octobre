@@ -3,7 +3,7 @@
 @import "tailwindcss/utilities";
 
 @layer components {
-    .folder[hovered] {
-        outline: 1px solid indigo;
-    }
+  .folder[hovered] {
+    outline: 1px solid indigo;
+  }
 }
