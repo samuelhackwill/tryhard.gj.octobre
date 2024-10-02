@@ -33,6 +33,7 @@ export const events = {
   START: "lancer le spectacle",
   // this data is consumed by the windowAdmin helper which uses the VALUES of the events to make buttons for the admin. samuel se sert de ces boutons pour passer d'une scène à une autre.
   goToAIs1: "goToAIs1",
+  goToAIs2: "goToAIs2",
 }
 
 export const transition = function (event, instance) {
@@ -40,9 +41,9 @@ export const transition = function (event, instance) {
 
   switch (instance.currentState.get()) {
     case "INITIAL":
-      //   if (event === Events.CLICK) {
-      //     instance.currentState.set(States.OPENING)
-      //   }
+      if (event === events.goToAIs1) {
+        instance.currentState.set(states.ACTEIsc1)
+      }
       break
   }
 }

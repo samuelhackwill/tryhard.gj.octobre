@@ -7,6 +7,7 @@ import "./components/main.js"
 import "./show.html"
 
 import { states, events, transition, triggers } from "./FSMs/showFSM.js"
+import { GlobalEvents, GlobalEvent } from "./FSMs/globalEvents.js"
 
 let Lastelement = null
 let animationFrame
@@ -23,6 +24,23 @@ Template.show.onCreated(function () {
 
 Template.show.onRendered(function () {
   streamer.emit("showInit", { width: window.innerWidth, height: window.innerHeight })
+
+  this.autorun(() => {
+    console.log("show RE-RENDERING because of global event : ", GlobalEvent.get())
+
+    if (!GlobalEvent.get()) {
+      return
+    } else {
+      // if (GlobalEvent.get() == Events.END_OF_PARAGRAPH) {
+      //   // when it's the end of a paragraph, we'd like to close the dialog.
+      //   transition(GlobalEvents.END_OF_PARAGRAPH, this)
+      // }
+      if (GlobalEvent.get() == GlobalEvents.goToAIs1) {
+        // when it's the end of a paragraph, we'd like to close the dialog.
+        transition(GlobalEvents.goToAIs1, this)
+      }
+    }
+  })
 })
 
 streamer.on("displayMessage", function (message) {
@@ -48,9 +66,12 @@ Template.show.helpers({
   allPointers(arg) {
     if (arg.hash.getAdmin === true) {
       // the pointer with ?id=samuel is the boss!
-      // TODO : refactor this because it's not very secure. genre si quelqu'un se connecte à localhost:3000/id=samuel il devient l'admin lel
       pointer = instance.pointers.get("samuel")
-      return [pointer]
+      if (pointer == undefined) {
+        return
+      } else {
+        return [pointer]
+      }
     } else {
       allPointers = instance.pointers.all()
       const { samuel, ...userData } = allPointers
@@ -69,6 +90,7 @@ Template.show.helpers({
 
 Template.show.events({
   "click button"() {
+    // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
     console.log("yahouuuu")
   },
 })
@@ -85,8 +107,7 @@ simulateMouseDown = function (pointer) {
   const element = getElementAt(pointer.coords)
 
   // we need to restrict clicks on privileged buttons, like the admin buttons
-  // so that only samuel can click on them
-  // TODO : refactor this because it's not very secure. genre si quelqu'un se connecte à localhost:3000/id=samuel il devient l'admin lel
+  // so that only samuel can click on them.
   if (element.classList.contains("privileged") && pointer.id != "samuel") {
     return
   }

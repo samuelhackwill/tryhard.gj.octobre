@@ -1,9 +1,9 @@
 <template name="window"> </template>
 
 <template name="windowAdmin">
-  <div id="windowAdminContainer" class="bg-slate-200 opacity-80 m-6 p-6 rounded-md max-w-fit border-2 border-blue-300 text-gray-700 drop-shadow-2xl">
+  <div id="windowAdminContainer" class="{{isOpen}} transition-opacity bg-slate-200 m-6 p-6 rounded-md max-w-fit border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg">
     <div id="statepannel" class="">
-      <span>current state : <span class="bg-blue-300 p-1 rounded-xl">{{this.currentState}}</span></span>
+      <span>current state : <span class="bg-green-200 p-1 rounded-xl">{{this.currentState}}</span></span>
       <div id="buttonsPannel">
         {{#each FSMEvents}}
         <button class="bg-gray-300 hover:bg-red-700 text-white py-1 px-2 m-1 rounded privileged">{{this}}</button>
