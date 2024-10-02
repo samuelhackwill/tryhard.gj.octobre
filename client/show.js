@@ -2,6 +2,7 @@ import { Template } from "meteor/templating"
 import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
+import { applyRandomAccessory } from "./dressup.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -63,6 +64,12 @@ streamer.on("displayMessage", function (message) {
         //(Note that this doesn't erase any of the state we set in this client, e.g. what's being hovered)
         pointer = Object.assign(pointer, pointerData)
       }
+      //Save the updated pointer state
+      instance.pointers.set(pointer.id, pointer)
+      //Note that we shouldn't change `pointer` after this point,
+      // and especially not write to `instance.pointers`!
+      //This is because simulating the events might trigger a bunch of things,
+      // including template events, which may want to access the reactive pointers too.
 
       //Handle events
       if (pointer.mousedown) {
@@ -74,9 +81,6 @@ streamer.on("displayMessage", function (message) {
 
       //Update the hover state, in case the pointer moved
       checkHover(pointer)
-
-      //Save the updated pointer state
-      instance.pointers.set(pointer.id, pointer)
     })
   }
 })
@@ -112,6 +116,12 @@ Template.show.events({
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
     console.log("SHOW.JS button clicked.")
   },
+  "click #folderVestiaire" (event, tpl, extra) {
+    if(!extra) return //No extra data was provided: we don't know which pointer clicked?
+    let pointer = instance.pointers.get(extra.pointer.id)
+    applyRandomAccessory(pointer)
+    instance.pointers.set(pointer.id, pointer)
+  }
 })
 
 simulateMouseUp = function (pointer) {
