@@ -48,15 +48,31 @@ streamer.on("displayMessage", function (message) {
   if (FlowRouter.getRouteName() === "show") {
     //message.pointers contains all the pointers that have changed state this frame (moved, etc)
     // => reflect this change on the reactive dictionary
-    message.pointers.forEach((p) => {
-      instance.pointers.set(p.id, p)
+    message.pointers.forEach((pointerData) => {
+      //Get the reactive pointer
+      let pointer = instance.pointers.get(pointerData.id);
+      if(!pointer) {
+        //It doesn't exist: we don't have any other data than what the server sent us
+        pointer = pointerData;
+      } else {
+        //Apply all the updated data sent by the server
+        //(Note that this doesn't erase any of the state we set in this client, e.g. what's being hovered)
+        pointer = Object.assign(pointer, pointerData);
+      }
+      
+      //Handle events
+      if (pointer.mousedown) {
+        simulateMouseDown(pointer)
+      }
+      if (pointer.mouseup) {
+        simulateMouseUp(pointer)
+      }
 
-      if (p.mousedown) {
-        simulateMouseDown(p)
-      }
-      if (p.mouseup) {
-        simulateMouseUp(p)
-      }
+      //Update the hover state, in case the pointer moved
+      checkHover(pointer);
+
+      //Save the updated pointer state
+      instance.pointers.set(pointer.id, pointer)
     })
   }
 })
@@ -97,14 +113,14 @@ Template.show.events({
 
 simulateMouseUp = function (pointer) {
   const element = getElementAt(pointer.coords)
+  if(element == null) return
 
-  if (element.tagName == "BUTTON") {
-    element.classList.remove("clicked")
-  }
+  element.classList.remove("clicked")
 }
 
 simulateMouseDown = function (pointer) {
   const element = getElementAt(pointer.coords)
+  if(element == null) return
 
   // we need to restrict clicks on privileged buttons, like the admin buttons
   // so that only samuel can click on them.
@@ -112,12 +128,52 @@ simulateMouseDown = function (pointer) {
     return
   }
 
-  if (element.tagName == "BUTTON") {
-    element.click()
-    element.classList.add("clicked")
-  }
+  //Trigger a jQuery click event with extra data (the pointer)
+  $(element).trigger("click", {pointer:pointer});
+  element.classList.remove("clicked")
 }
 
 function getElementAt(coords) {
-  return document.elementFromPoint(coords.x, coords.y)
+  let element = document.elementFromPoint(coords.x, coords.y)
+  if(element == null) return null
+
+  if(element.id == "") {
+    //We only interact with elements that have an id, this one doesn't.
+    //Find its nearest parent that does have
+    element = element.closest("*[id]")
+    if(element == null) return null
+  }
+  return element
+}
+
+function checkHover(pointer) {
+  let prevHoveredElement = document.getElementById(pointer.hoveredElement)
+  let currentHoveredElement = getElementAt(pointer.coords)
+
+  //"We were hovering something, now we're hovering something else"
+  if (prevHoveredElement != currentHoveredElement) {
+    //Update the hover counter of the previous element (if there's one)
+    if(prevHoveredElement) {
+      addToDataAttribute(prevHoveredElement, "hovered", -1)
+      $(prevHoveredElement).trigger("mouseleave", {pointer:pointer});
+    }
+    //Update the pointer state
+    pointer.hoveredElement = currentHoveredElement ? currentHoveredElement.id : null
+    //Update the hover counter of the new element (if there's one)
+    if(currentHoveredElement) {
+      addToDataAttribute(currentHoveredElement, "hovered", 1)
+      $(currentHoveredElement).trigger("mouseenter", {pointer:pointer});
+    }
+  }
+}
+
+//Shorthand for "getting a data attribute in `element` as an integer to add `amount` to it before re-saving the new value as a data attribute"
+function addToDataAttribute(element, attr, amount) {
+  let value = parseInt(element.getAttribute(attr) ?? 0)
+  value += amount
+  if(value == 0) {
+    element.removeAttribute(attr)
+  } else {
+    element.setAttribute(attr, value)
+  }
 }
