@@ -7,33 +7,33 @@ export const states = {
   INITIAL: "INITIAL",
 
   // ACTE I
-  ACTEIsc1: "ACTEIsc1",
+  ACTE1s1: "ACTE1s1",
   // samuel cherche son accessoire
-  ACTEIsc2: "ACTEIsc2",
+  ACTE1s2: "ACTE1s2",
   // samuel démarre le spectacle mais doit prouver qu'il n'est pas un robot
-  ACTEIIsc1: "ACTEIIsc1",
+  ACTE2s1: "ACTE2s1",
   // les joueureuses/bots apparaissent en tombant du ciel
 
   // ACTE II
-  ACTEIIsc2: "ACTEIIsc2",
+  ACTE2s2: "ACTE2s2",
   // les joueureuses doivent se rassembler devant samuel
-  ACTEIIsc3: "ACTEIIsc3",
+  ACTE2s3: "ACTE2s3",
   // les joueureuses doivent faire un cerle autour de samuel
-  ACTEIIsc4: "ACTEIIsc4",
+  ACTE2s4: "ACTE2s4",
   // les joueureuses doivent faire un carré autour de samuel
-  ACTEIIsc5: "ACTEIIsc5",
+  ACTE2s5: "ACTE2s5",
   // les joueureuses doivent se mettre de part à d'autre de l'écran
-  ACTEIIsc6: "ACTEIIsc6",
+  ACTE2s6: "ACTE2s6",
   // les joueureuses doivent se mettre sur un axe en fonction de la dernière fois qu'iels ont mangé
-  ACTEIIsc7: "ACTEIIsc7",
+  ACTE2sc7: "ACTE2sc7",
   // les joueureuses doivent faire une pyramide des ages
 }
 
 export const events = {
-  START: "lancer le spectacle",
   // this data is consumed by the windowAdmin helper which uses the VALUES of the events to make buttons for the admin. samuel se sert de ces boutons pour passer d'une scène à une autre.
-  goToAIs1: "goToAIs1",
-  goToAIs2: "goToAIs2",
+  REDÉMARRER: "REDÉMARRER",
+  LANCER_LE_SPECTACLE: "LANCER_LE_SPECTACLE",
+  OUVRIR_LA_FNET: "OUVRIR_LA_FNET",
 }
 
 export const transition = function (event, instance) {
@@ -41,8 +41,14 @@ export const transition = function (event, instance) {
 
   switch (instance.currentState.get()) {
     case "INITIAL":
-      if (event === events.goToAIs1) {
-        instance.currentState.set(states.ACTEIsc1)
+      if (event === events.OUVRIR_LA_FNET) {
+        instance.currentState.set(states.ACTE1s1)
+      }
+      break
+
+    case "ACTE1s1":
+      if (event === events.LANCER_LE_SPECTACLE) {
+        instance.currentState.set(states.ACTE1s2)
       }
       break
   }

@@ -31,14 +31,18 @@ Template.show.onRendered(function () {
     if (!GlobalEvent.get()) {
       return
     } else {
-      // if (GlobalEvent.get() == Events.END_OF_PARAGRAPH) {
-      //   // when it's the end of a paragraph, we'd like to close the dialog.
-      //   transition(GlobalEvents.END_OF_PARAGRAPH, this)
-      // }
-      if (GlobalEvent.get() == GlobalEvents.goToAIs1) {
-        // when it's the end of a paragraph, we'd like to close the dialog.
-        transition(GlobalEvents.goToAIs1, this)
-      }
+      // global events should always have the value
+      // of the key of a local FSM event.
+      // got it?
+
+      // so for instance, if we want to trigger a transition
+      // to Acte1s2 (showFSM > events.goToA1s2)
+      // we should call a global event using the key
+      // GlobalEvents.goToAIs2
+
+      key = GlobalEvent.get()
+      transition(GlobalEvents[key], this)
+      GlobalEvent.set(null)
     }
   })
 })
@@ -91,7 +95,7 @@ Template.show.helpers({
 Template.show.events({
   "click button"() {
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
-    console.log("yahouuuu")
+    console.log("SHOW.JS button clicked.")
   },
 })
 

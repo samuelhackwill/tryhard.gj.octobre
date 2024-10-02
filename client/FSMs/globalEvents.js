@@ -9,5 +9,6 @@ import { events as showFSMevents } from "./showFSM.js"
 export const GlobalEvent = new ReactiveVar(null)
 
 export const GlobalEvents = {
-  [showFSMevents.goToAIs1]: showFSMevents.goToAIs1,
+  [showFSMevents.LANCER_LE_SPECTACLE]: showFSMevents.LANCER_LE_SPECTACLE,
+  [showFSMevents.OUVRIR_LA_FNET]: showFSMevents.OUVRIR_LA_FNET,
 }
