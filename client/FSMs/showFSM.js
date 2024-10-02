@@ -34,6 +34,7 @@ export const events = {
   REDÉMARRER: "REDÉMARRER",
   LANCER_LE_SPECTACLE: "LANCER_LE_SPECTACLE",
   OUVRIR_LA_FNET: "OUVRIR_LA_FNET",
+  VRAIMENT_LANCER_LE_SPECTACLE: "VRAIMENT_LANCER_LE_SPECTACLE",
 }
 
 export const transition = function (event, instance) {
@@ -49,6 +50,12 @@ export const transition = function (event, instance) {
     case "ACTE1s1":
       if (event === events.LANCER_LE_SPECTACLE) {
         instance.currentState.set(states.ACTE1s2)
+      }
+      break
+
+    case "ACTE1s2":
+      if (event === events.VRAIMENT_LANCER_LE_SPECTACLE) {
+        instance.currentState.set(states.ACTE2s1)
       }
       break
   }

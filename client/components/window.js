@@ -1,10 +1,15 @@
 import "./window.html"
 
 import { events } from "./../FSMs/showFSM.js"
-import { GlobalEvent } from "../FSMs/globalEvents.js"
+import { GlobalEvent, GlobalEvents } from "../FSMs/globalEvents.js"
+
+import { checkboxCaptchas } from "./../textAssets/captchas.js"
 
 const feed = new ReactiveVar([{ value: "Je ne suis pas un robot", hasInteracted: false }])
 const captchaSolved = new ReactiveVar(false)
+const captchaIndex = new ReactiveVar(0)
+
+let fader = null
 
 Template.windowAdmin.onCreated(function () {
   // this.feed = new ReactiveVar(["Je ne suis pas un robot"])
@@ -19,6 +24,10 @@ Template.windowAdmin.helpers({
     }
   },
 
+  isCaptchaSolved() {
+    return captchaSolved.get()
+  },
+
   FSMEvents() {
     // show.html is passing a currentState=<state> arg
     // so we have acess to the FSM state that way
@@ -28,7 +37,7 @@ Template.windowAdmin.helpers({
 
   isOpen() {
     // "this" is actually the state of SHOW which was passed to its children.
-    if (this.currentState == "INITIAL") {
+    if (this.currentState == "INITIAL" || this.currentState == "ACTE2s1") {
       return "opacity:0;"
     } else {
       return "opacity:80;"
@@ -51,15 +60,14 @@ Template.windowAdmin.events({
   "click button"() {
     buttonId = String(this)
     GlobalEvent.set(buttonId)
+
+    if (captchaSolved.get() == true && buttonId == "LANCER_LE_SPECTACLE") {
+      GlobalEvent.set(GlobalEvents.VRAIMENT_LANCER_LE_SPECTACLE)
+    }
   },
 })
 
-Template.captcha.onCreated(function () {
-  // this.index = new ReactiveVar(0)
-  // this.interacted = new ReactiveVar(false)
-  // console.log(this.data.value)
-  // console.log(this.data.hasInteracted)
-})
+Template.captcha.onCreated(function () {})
 
 Template.captcha.onRendered(function () {})
 
@@ -72,15 +80,24 @@ Template.captcha.helpers({
 
 Template.captcha.events({
   "click input"() {
-    console.log(this)
-    // _index = Template.instance().index.get() + 1
-    // Template.instance().index.set(_index)
+    index = captchaIndex.get()
 
-    // Template.instance().interacted.set(true)
-    _feed = feed.get()
-    _feed[_feed.length - 1].hasInteracted = true
-    _feed.push({ value: "prout", hasInteracted: false })
-    feed.set(_feed)
+    console.log(checkboxCaptchas)
+
+    if (index < checkboxCaptchas.length - 1) {
+      _feed = feed.get()
+      _feed[_feed.length - 1].hasInteracted = true
+      _feed.push({ value: checkboxCaptchas[index], hasInteracted: false })
+      feed.set(_feed)
+    } else {
+      // trigger event! it's finished!
+      fadeEveryCaptcha()
+      console.log("ok samuel n'est pas un robot")
+      return
+    }
+
+    _index = index + 1
+    captchaIndex.set(_index)
 
     // scroll to bottom
     Meteor.setTimeout(() => {
@@ -89,3 +106,16 @@ Template.captcha.events({
     }, 0)
   },
 })
+
+fadeEveryCaptcha = function () {
+  fader = Meteor.setInterval(() => {
+    _feed = feed.get()
+    _feed.pop()
+    feed.set(_feed)
+
+    if (_feed.length < 1) {
+      Meteor.clearInterval(fader)
+      captchaSolved.set(true)
+    }
+  }, 500)
+}
