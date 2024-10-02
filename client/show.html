@@ -10,6 +10,10 @@
   {{/each}}
 
   <div class="foregroundContainer"></div>
-  {{>folderAdmin}}
+
+  {{>folderAdmin}} 
+  <!-- here i'm rendering the windowAdmin with current show state because the admin window needs the context of his parent! hhu -->
+  {{#each showState}} {{>windowAdmin currentState=this}} {{/each}}
+
   <!-- <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 m-12 rounded">Clic</button> -->
 </template>

@@ -6,10 +6,14 @@ import { FlowRouter } from "meteor/ostrio:flow-router-extra"
 import "./components/main.js"
 import "./show.html"
 
+import { states, events, transition, triggers } from "./FSMs/showFSM.js"
+
 let Lastelement = null
 let animationFrame
 
 Template.show.onCreated(function () {
+  this.currentState = new ReactiveVar(states.INITIAL)
+
   // Initialize the reactive dictionary to keep track of each client's pointer position.
   this.pointers = new ReactiveDict()
 
@@ -44,6 +48,9 @@ Template.show.helpers({
   allPointers() {
     const pointers = Object.values(instance.pointers.all())
     return pointers
+  },
+  showState() {
+    return [Template.instance().currentState.get()]
   },
 })
 
