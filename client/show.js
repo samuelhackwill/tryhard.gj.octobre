@@ -45,18 +45,31 @@ streamer.on("displayMessage", function (message) {
 
 Template.show.helpers({
   // Get all client pointers for iteration if you want to display all.
-  allPointers() {
-    const pointers = Object.values(instance.pointers.all())
-    return pointers
+  allPointers(arg) {
+    if (arg.hash.getAdmin === true) {
+      // the pointer with ?id=samuel is the boss!
+      // TODO : refactor this because it's not very secure. genre si quelqu'un se connecte à localhost:3000/id=samuel il devient l'admin lel
+      pointer = instance.pointers.get("samuel")
+      return [pointer]
+    } else {
+      allPointers = instance.pointers.all()
+      const { samuel, ...userData } = allPointers
+      pointers = Object.values(userData)
+      return pointers
+    }
   },
   showState() {
     return [Template.instance().currentState.get()]
+  },
+  isAdmin() {
+    console.log("isAdmin?", this)
+    return true
   },
 })
 
 Template.show.events({
   "click button"() {
-    // console.log("yahouuuu")
+    console.log("yahouuuu")
   },
 })
 
@@ -70,6 +83,13 @@ simulateMouseUp = function (pointer) {
 
 simulateMouseDown = function (pointer) {
   const element = getElementAt(pointer.coords)
+
+  // we need to restrict clicks on privileged buttons, like the admin buttons
+  // so that only samuel can click on them
+  // TODO : refactor this because it's not very secure. genre si quelqu'un se connecte à localhost:3000/id=samuel il devient l'admin lel
+  if (element.classList.contains("privileged") && pointer.id != "samuel") {
+    return
+  }
 
   if (element.tagName == "BUTTON") {
     element.click()

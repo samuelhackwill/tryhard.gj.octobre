@@ -1,9 +1,9 @@
 <template name="show">
   <div class="backgroundContainer"></div>
-  {{>background}} {{>folderVestiaire}}
+  {{>background}} {{>folderVestiaire}} {{>folderAdmin}} 
   <div class="milieuContainer"></div>
 
-  {{#each allPointers}}
+  {{#each allPointers getAdmin=false}}
   <div class="pointer-events-none bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px;" id="pointer{{this.id}}">
     <span class="pl-8">{{this.id}}</span>
   </div>
@@ -11,9 +11,11 @@
 
   <div class="foregroundContainer"></div>
 
-  {{>folderAdmin}} 
   <!-- here i'm rendering the windowAdmin with current show state because the admin window needs the context of his parent! hhu -->
-  {{#each showState}} {{>windowAdmin currentState=this}} {{/each}}
-
+  {{#each showState}} {{>windowAdmin currentState=this}} {{/each}} {{#each allPointers getAdmin=true}}
+  <div class="pointer-events-none bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px;" id="pointer{{this.id}}">
+    <span class="pl-8">{{this.id}}</span>
+  </div>
+  {{/each}}
   <!-- <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 m-12 rounded">Clic</button> -->
 </template>
