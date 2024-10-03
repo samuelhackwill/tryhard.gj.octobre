@@ -36,7 +36,7 @@ Template.show.onCreated(function () {
 
   //Start the stepper at a fixed framerate (60fps)
   this.stepInterval = Meteor.setInterval(
-    stepper.bind(this, [checkHover]), //Call stepper, passing `this` as the context, and an array of callbacks to call on each pointer every frame
+    stepper.bind(this, [checkHover, checkBufferedClick]), //Call stepper, passing `this` as the context, and an array of callbacks to call on each pointer every frame
     (1 / 60.0) * 1000 //60 frames per second <=> (1000/60)ms per frame
   )
   //Listen to logger events (one message whenever a pointer moves or clicks)
@@ -46,15 +46,12 @@ Template.show.onCreated(function () {
   this.bots = [] //Keep the array of bots on hand, it's easier than filtering this.pointers every time
   for (let i = 0; i < 96; i++) {
     let bot = createBot("bot" + i)
-    bot.locked = true
     this.pointers.set(bot.id, bot)
     bots.push(bot)
   }
-
-  //POC bot routine
-  // sendToSides(bots, this.windowBoundaries)
-  // circleRoutine(bots)
-  // bots.forEach((b) => this.pointers.set(b.id, b))
+  //Keep this around: it gives bots a home position
+  sendToSides(bots, this.windowBoundaries)
+  bots.forEach((b) => this.pointers.set(b.id, b))
 })
 Template.show.onDestroyed(function () {
   //Stop the stepper
@@ -184,9 +181,11 @@ Template.show.events({
   "click #folderVestiaire"(event, tpl, extra) {
     if (!extra) return //No extra data was provided: we don't know which pointer clicked?
     let pointer = instance.pointers.get(extra.pointer.id)
-
     //Don't let locked pointers change their accessories
     if (pointer.locked) return
+
+    //Clear the event queue (this helps bot dress up immediately, humans probably don't have events)
+    pointer.events = []
 
     if (pointer.id == "samuel") {
       dressupAnimation(pointer, getRandomBossAccessory())
@@ -218,28 +217,29 @@ Template.show.events({
 })
 
 simulateMouseUp = function (pointer) {
-  const element = getElementUnder(pointer)
-  if (element == null) return
+  const elements = getElementsUnder(pointer)
+  if (elements.length == 0) return
 
-  element.classList.remove("clicked")
+  elements.forEach(e => e.classList.remove("clicked"));
 }
 
 simulateMouseDown = function (pointer) {
-  const element = getElementUnder(pointer)
-  if (element == null) return
+  const elements = getElementsUnder(pointer)
+  if (elements.length == 0) return
+  elements.forEach(element => {
+    // we need to restrict clicks on privileged buttons, like the admin buttons
+    // so that only samuel can click on them.
+    if (element.classList.contains("privileged") && pointer.id != "samuel") {
+      return
+    }
 
-  // we need to restrict clicks on privileged buttons, like the admin buttons
-  // so that only samuel can click on them.
-  if (element.classList.contains("privileged") && pointer.id != "samuel") {
-    return
-  }
-
-  //Trigger a jQuery click event with extra data (the pointer)
-  $(element).trigger("click", { pointer: pointer })
-  element.classList.remove("clicked")
+    //Trigger a jQuery click event with extra data (the pointer)
+    $(element).trigger("click", { pointer: pointer })
+    element.classList.remove("clicked")
+  })
 }
 
-function getElementUnder(pointer) {
+function getElementsUnder(pointer) {
   let elements = document.elementsFromPoint(pointer.coords.x, pointer.coords.y)
 
   //Ignore elements without an id
@@ -247,16 +247,14 @@ function getElementUnder(pointer) {
   //Ignore the pointer itself
   elements = elements.filter((e) => e.id != "pointer" + pointer.id)
 
-  if (elements.length == 0) {
-    return null
-  } else {
-    return elements[0]
-  }
+  return elements
 }
 
 function checkHover(pointer) {
   let prevHoveredElement = document.getElementById(pointer.hoveredElement)
-  let currentHoveredElement = getElementUnder(pointer)
+  let currentHoveredElements = getElementsUnder(pointer);
+  if(currentHoveredElements.length == 0) return;
+  let currentHoveredElement = currentHoveredElements[0]
 
   //"We were hovering something, now we're hovering something else"
   if (prevHoveredElement != currentHoveredElement) {
@@ -274,6 +272,19 @@ function checkHover(pointer) {
       $(currentHoveredElement).trigger("mouseenter", { pointer: pointer })
     }
   }
+}
+
+//A buffered click is a click that was added as part of an animation (usually for bots), waiting for the end of the frame to be applied
+function checkBufferedClick(pointer) {
+  //If there's a buffered click: do it now
+  if(pointer.bufferedClick) {
+    simulateMouseDown(pointer)
+    simulateMouseUp(pointer)
+  }
+  //Reset the flag
+  pointer = instance.pointers.get(pointer.id, pointer)
+  pointer.bufferedClick = false
+  instance.pointers.set(pointer.id, pointer)
 }
 
 //Shorthand for "getting a data attribute in `element` as an integer to add `amount` to it before re-saving the new value as a data attribute"

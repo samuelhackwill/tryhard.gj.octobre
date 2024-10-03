@@ -1,5 +1,6 @@
 import { lerp, peakAtHalf, clampPointToArea } from "../both/math-helpers.js"
 import { ValueNoise } from 'value-noise-js';
+import { getRandomIdleRoutine } from './bots.js'
 const noise = new ValueNoise();
 
 export const stepper = function(pointerCallbacks = []) {
@@ -19,8 +20,17 @@ function applyGravity(p) {
 }
 
 function stepEventQueue(pointer) {
-  //Early return if there's no event to step
-  if(pointer.events.length == 0) return pointer;
+  //Whent the event queue is empty,
+  if(pointer.events.length == 0){
+    if(pointer.bot && !pointer.locked) {
+      //Bots get random commands
+      getRandomIdleRoutine(pointer);
+      return
+    } else {
+      //Non-bots do nothing
+      return
+    }
+  }
 
   //Get the first event in the queue
   let event = pointer.events.shift();
@@ -58,6 +68,9 @@ function stepEventQueue(pointer) {
     case "tree":
       pointer.tree = event.tree;
     break;
+    case "bufferClick":
+      pointer.bufferedClick = true
+    break
     case "fade":
       if(event.from == null) event.from = pointer.opacity
       if(event.to == null) event.to = pointer.opacity
@@ -105,6 +118,8 @@ function stepEventQueue(pointer) {
     //Not so linear after all.
     pointer.coords.x = lerp(event.from.x, event.to.x, t + delay.x) + offset.x
     pointer.coords.y = lerp(event.from.y, event.to.y, t + delay.y) + offset.y
+    break;
+    default:
     break;
   }
 
