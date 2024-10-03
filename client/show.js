@@ -173,7 +173,12 @@ Template.show.events({
     instance.pointers.set(pointer.id, pointer)
   },
   "click #folderAdmin"(event, tpl, extra) {
-    instance.adminPosition.set([event.pageX, event.pageY])
+    if (extra) {
+      instance.adminPosition.set([extra.pointer.coords.x, extra.pointer.coords.y])
+    } else {
+      instance.adminPosition.set([event.pageX, event.pageY])
+    }
+
     GlobalEvent.set(GlobalEvents.OUVRIR_LA_FNET)
   },
 })
