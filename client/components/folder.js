@@ -2,7 +2,7 @@ import "./folder.html"
 import { GlobalEvent, GlobalEvents } from "./../FSMs/globalEvents.js"
 
 Template.folderAdmin.onCreated(function () {
-  this.pos = new ReactiveVar([500, 200])
+  this.pos = new ReactiveVar([500, 400])
 })
 
 Template.folderAdmin.helpers({

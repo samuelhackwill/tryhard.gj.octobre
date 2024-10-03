@@ -50,9 +50,9 @@ Template.show.onCreated(function () {
   }
 
   //POC bot routine
-  sendToSides(bots, this.windowBoundaries)
-  circleRoutine(bots)
-  bots.forEach((b) => this.pointers.set(b.id, b))
+  // sendToSides(bots, this.windowBoundaries)
+  // circleRoutine(bots)
+  // bots.forEach((b) => this.pointers.set(b.id, b))
 })
 Template.show.onDestroyed(function () {
   //Stop the stepper
@@ -143,6 +143,14 @@ Template.show.helpers({
 })
 
 Template.show.events({
+  "click .backgroundContainer"(event, tpl, extra) {
+    if (!extra) return //No extra data was provided: we don't know which pointer clicked?
+
+    if (extra.pointer.id == "samuel") {
+      tpl.isAdminOpen.set(false)
+    }
+  },
+
   "click button"() {
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
     console.log("SHOW.JS button clicked. ", this)
@@ -178,7 +186,6 @@ Template.show.events({
     } else {
       instance.adminPosition.set([event.pageX, event.pageY])
     }
-
     GlobalEvent.set(GlobalEvents.OUVRIR_LA_FNET)
   },
 })

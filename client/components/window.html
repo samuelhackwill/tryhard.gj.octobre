@@ -1,7 +1,7 @@
 <template name="window"> </template>
 
 <template name="windowAdmin">
-  <div id="AdminContainer" class="max-w-[30vw] absolute duration-200 bg-slate-200 p-6 rounded-md border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg" style="{{isAdminOpen}} ;{{getPos}}">
+  <div id="AdminContainer" class="max-w-[45vw] max-h-[80vh] relative duration-200 bg-slate-200 p-6 rounded-md border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg" style="{{isAdminOpen}} {{getPos}}">
     <div id="statepannel" class="opacity-50 mb-2">
       <span>current state : <span class="bg-blue-200 p-1 rounded-xl">{{this.currentState}}</span></span>
       <span>current globalEvent : <span class="bg-red-200 p-1 rounded-xl">{{getGlobalEvent}}</span></span>
@@ -13,9 +13,9 @@
       <!-- ok so most of them are buttons but not the lancer spectacle which requires captchas first. -->
       {{#if isSpecialButton}}
       <button id="{{this}}" class="bg-blue-600 hover:bg-red-700 text-white py-1 px-2 m-1 rounded privileged">{{this}}</button>
-      <div id="captchaContainer" class="w-full overflow-scroll max-h-[40vh]" style="{{isItCaptchaTime}}">
+      <div id="captchaContainer" class="w-full overflow-scroll max-h-[50vh]" style="{{isItCaptchaTime}}">
         {{#if isCaptchaSolved}}
-        <div class="text-center"><span>✅</span> <span> Samuel n'a pas l'air d'être un robot </span></div>
+        <div class="text-center"><span>✅</span> <span> Samuel n'est pas un robot </span></div>
 
         {{else}} {{#each feed}} {{>captcha this}} {{/each}} {{/if}}
       </div>

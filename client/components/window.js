@@ -103,7 +103,7 @@ Template.captcha.events({
   "click input"() {
     index = captchaIndex.get()
 
-    if (index < checkboxCaptchas.length - 1) {
+    if (index < checkboxCaptchas.length) {
       _feed = feed.get()
       _feed[_feed.length - 1].hasInteracted = true
       _feed.push({ value: checkboxCaptchas[index], hasInteracted: false })
@@ -135,5 +135,5 @@ fadeEveryCaptcha = function () {
       Meteor.clearInterval(fader)
       captchaSolved.set(true)
     }
-  }, 500)
+  }, 200)
 }

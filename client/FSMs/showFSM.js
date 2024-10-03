@@ -11,12 +11,12 @@ export const states = {
   // samuel cherche son accessoire
   ACTE1s2: "ACTE1s2",
   // samuel démarre le spectacle mais doit prouver qu'il n'est pas un robot
-  ACTE2s1: "ACTE2s1",
-  // les joueureuses/bots apparaissent
 
   // ACTE II
+  ACTE2s1: "ACTE2s1",
+  // les joueureuses/bots apparaissent (fade in)
   ACTE2s2: "ACTE2s2",
-  // les joueureuses doivent se rassembler devant samuel
+  // samuel gagne le droit de parler & les joueureuses doivent se rassembler devant samuel
   ACTE2s3: "ACTE2s3",
   // les joueureuses doivent faire un cerle autour de samuel
   ACTE2s4: "ACTE2s4",
@@ -24,9 +24,21 @@ export const states = {
   ACTE2s5: "ACTE2s5",
   // les joueureuses doivent se mettre de part à d'autre de l'écran
   ACTE2s6: "ACTE2s6",
+  // les joueureuses doivent se mettre sur un axe en fonction de leurs revenus
+  ACTE2s6: "ACTE2s7",
   // les joueureuses doivent se mettre sur un axe en fonction de la dernière fois qu'iels ont mangé
-  ACTE2sc7: "ACTE2sc7",
-  // les joueureuses doivent faire une pyramide des ages
+  ACTE2sc7: "ACTE2sc8",
+  // les joueureuses doivent se placer sur un graphe
+
+  CUT: "CUT",
+  // CUT
+
+  ACTE3sc1: "ACTE3sc3",
+  // samuel parle de douglas englebart pendant que les joueureuses plantent des arbres
+  ACTE3sc2: "ACTE3sc2",
+  // samuel dit que c'est fini et qu'il va tuer tout le monde.
+
+  // fin
 }
 
 export const events = {
