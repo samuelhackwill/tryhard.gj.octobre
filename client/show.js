@@ -159,14 +159,14 @@ Template.show.events({
 })
 
 simulateMouseUp = function (pointer) {
-  const element = getElementAt(pointer.coords)
+  const element = getElementUnder(pointer)
   if (element == null) return
 
   element.classList.remove("clicked")
 }
 
 simulateMouseDown = function (pointer) {
-  const element = getElementAt(pointer.coords)
+  const element = getElementUnder(pointer)
   if (element == null) return
 
   // we need to restrict clicks on privileged buttons, like the admin buttons
@@ -180,13 +180,18 @@ simulateMouseDown = function (pointer) {
   element.classList.remove("clicked")
 }
 
-function getElementAt(coords) {
-  let element = document.elementFromPoint(coords.x, coords.y)
-  if (element == null) return null
+function getElementUnder(pointer) {
+  let elements = document.elementsFromPoint(pointer.coords.x, pointer.coords.y)
+  
+  //Ignore the pointer itself
+  elements = elements.filter(e => e.id != "pointer"+pointer.id);
+
+  if (elements.length == 0) return null
+  let element = elements[0];
 
   if (element.id == "") {
     //We only interact with elements that have an id, this one doesn't.
-    //Find its nearest parent that does have
+    //Find its nearest parent that does
     element = element.closest("*[id]")
     if (element == null) return null
   }
@@ -195,7 +200,7 @@ function getElementAt(coords) {
 
 function checkHover(pointer) {
   let prevHoveredElement = document.getElementById(pointer.hoveredElement)
-  let currentHoveredElement = getElementAt(pointer.coords)
+  let currentHoveredElement = getElementUnder(pointer)
 
   //"We were hovering something, now we're hovering something else"
   if (prevHoveredElement != currentHoveredElement) {
