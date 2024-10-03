@@ -55,6 +55,9 @@ function stepEventQueue(pointer) {
     case "accessory":
       pointer.accessory = event.accessory;
     break;
+    case "tree":
+      pointer.tree = event.tree;
+    break;
     case "fade":
       if(event.from == null) event.from = pointer.opacity
       if(event.to == null) event.to = pointer.opacity

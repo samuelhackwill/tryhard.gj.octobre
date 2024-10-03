@@ -1,24 +1,33 @@
 <template name="show">
-  <div class="backgroundContainer">{{>background}} {{>folderVestiaire}} {{>folderAdmin}} {{>plusminus}}</div>
+  <div class="backgroundContainer"></div>
+  {{>background}} {{>folderVestiaire}} {{>folderAdmin}} {{>folderTrees x=1000 y=100}} {{>plusminus}}
+  <div class="milieuContainer"></div>
 
-  <div class="milieuContainer">
-    {{#each allPointers getAdmin=false}}
-    <div class="bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px; opacity:{{this.opacity}}" pointer-id="{{this.id}}" id="pointer{{this.id}}">
-      <span class="pl-8 transition-opacity duration-1000 {{areNamesHidden}}">{{this.id}}</span>
-      <span class="accessory" style="position: absolute; left: 4px; top: 4px; font-size: 250%">{{accessory}}</span>
+  {{#each allPointers getAdmin=false}}
+  <div class="bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px; opacity:{{this.opacity}}" pointer-id="{{this.id}}" id="pointer{{this.id}}">
+    <span class="pl-8 transition-opacity duration-1000 {{areNamesHidden}}">{{this.id}}</span>
+    {{#if tree}}
+    <span class="tree" style="position: absolute; left: -25px; top: -50px; font-size: 250%">{{tree}}</span>
+    {{/if}}
+    <span class="accessory" style="position: absolute; left: 4px; top: 4px; font-size: 250%">{{accessory}}</span>
+  </div>
+
+  <div class="foregroundContainer">
+    {{#each allPlantedTrees }}
+    <div class="pointer-events-none" style="position: absolute; left: {{coords.x}}px; top: {{coords.y}}px;">
+      <span class="tree" style="position: absolute; left: -25px; top: -50px; font-size: 250%">{{tree}}</span>
     </div>
     {{/each}}
   </div>
 
-  <div class="foregroundContainer">
-    <!-- below is only for admin pointer! -->
-    <!-- here i'm rendering the windowAdmin with current show state because the admin window needs the context of his parent! hhu -->
-    {{#each showState}} {{>windowAdmin currentState=showState}} {{/each}} {{#each allPointers getAdmin=true}}
-    <div class="bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px; opacity:{{this.opacity}}" pointer-id="{{this.id}}" id="pointer{{this.id}}">
-      <span class="pl-8">{{this.id}}</span>
-      <span class="accessory" style="position: absolute; left: 10px; top: 10px; font-size: 150%">{{this.accessory}}</span>
-    </div>
-    {{/each}}
-    <!-- <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 m-12 rounded">Clic</button> -->
+  <!-- below is only for admin pointer! -->
+  <!-- here i'm rendering the windowAdmin with current show state because the admin window needs the context of his parent! hhu -->
+  {{#each showState}} {{>windowAdmin currentState=showState}} {{/each}} {{#each allPointers getAdmin=true}}
+  <div class="bg-cursor bg-contain pointer w-[30px] h-[50px] bg-no-repeat" style="position:absolute; left:{{this.coords.x}}px; top:{{this.coords.y}}px; opacity:{{this.opacity}}" pointer-id="{{this.id}}" id="pointer{{this.id}}">
+    <span class="pl-8">{{this.id}}</span>
+    {{#if tree}}
+    <span class="tree" style="position: absolute; left: -25px; top: -50px; font-size: 250%">{{tree}}</span>
+    {{/if}}
+    <span class="accessory" style="position: absolute; left: 10px; top: 10px; font-size: 250%">{{this.accessory}}</span>
   </div>
 </template>
