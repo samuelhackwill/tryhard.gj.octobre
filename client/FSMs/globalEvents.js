@@ -13,4 +13,7 @@ export const GlobalEvents = {
   [showFSMevents.OUVRIR_LA_FNET]: showFSMevents.OUVRIR_LA_FNET,
   [showFSMevents.VRAIMENT_LANCER_LE_SPECTACLE]: showFSMevents.VRAIMENT_LANCER_LE_SPECTACLE,
   [showFSMevents.MONTRER_LE_NOM_DES_CURSEURS]: showFSMevents.MONTRER_LE_NOM_DES_CURSEURS,
+  [showFSMevents.GO_TO_INSEE]: showFSMevents.GO_TO_INSEE,
+  [showFSMevents.GO_TO_JOEL_ROBUCHON]: showFSMevents.GO_TO_JOEL_ROBUCHON,
+  [showFSMevents.GO_TO_GRAPHE]: showFSMevents.GO_TO_GRAPHE,
 }

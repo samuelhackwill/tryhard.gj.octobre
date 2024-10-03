@@ -8,9 +8,13 @@ Template.background.helpers({
       if (currentView.name == "Template.show") {
         break
       }
-      currentView = currentView.parentView.templateInstance()
+      currentView = currentView.parentView
     }
 
-    return currentView.whichBackground.get()
+    if (currentView.templateInstance().whichBackground.get() == null) {
+      return false
+    } else {
+      return "background-image:url('./backgrounds/" + currentView.templateInstance().whichBackground.get() + "');"
+    }
   },
 })

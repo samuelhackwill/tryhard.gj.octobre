@@ -1,3 +1,8 @@
 <template name="background">
-  <div id="background" class="bg-slate-400 w-full h-full absolute -z-10" style="{{getBg}}"></div>
+  <div
+    id="background"
+    class="bg-slate-400 w-full h-full absolute -z-10 bg-contain bg-no-repeat bg-center"
+    style="-webkit-transition: background-image 1s ease-in-out;
+  transition: background-image 1s ease-in-out;
+  {{getBg}} {{#if getBg}} background-color:white!important; {{/if}}"></div>
 </template>

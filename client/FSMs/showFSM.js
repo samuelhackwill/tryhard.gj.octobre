@@ -40,6 +40,9 @@ export const events = {
   OUVRIR_LA_FNET: "OUVRIR_LA_FNET",
   VRAIMENT_LANCER_LE_SPECTACLE: "VRAIMENT_LANCER_LE_SPECTACLE",
   MONTRER_LE_NOM_DES_CURSEURS: "MONTRER_LE_NOM_DES_CURSEURS",
+  GO_TO_INSEE: "GO_TO_INSEE",
+  GO_TO_JOEL_ROBUCHON: "GO_TO_JOEL_ROBUCHON",
+  GO_TO_GRAPHE: "GO_TO_GRAPHE",
 }
 
 export const transition = function (event, instance) {
@@ -85,11 +88,41 @@ export const transition = function (event, instance) {
         triggers.onEnterActe1s2(instance)
       }
       break
+
+    case "ACTE2s1":
+      if (event === events.GO_TO_INSEE) {
+        instance.currentState.set(states.ACTE2s2)
+        triggers.onEnterActe2s2(instance)
+      }
+      break
+
+    case "ACTE2s2":
+      if (event === events.GO_TO_JOEL_ROBUCHON) {
+        instance.currentState.set(states.ACTE2s3)
+        triggers.onEnterActe2s3(instance)
+      }
+      break
+
+    case "ACTE2s3":
+      if (event === events.GO_TO_GRAPHE) {
+        instance.currentState.set(states.ACTE2s4)
+        triggers.onEnterActe2s4(instance)
+      }
+      break
   }
 }
 
 export const triggers = {
   onEnterActe1s2: function (instance) {
     instance.isAdminOpen.set(false)
+  },
+  onEnterActe2s2: function (instance) {
+    instance.whichBackground.set("axe_revenus.png")
+  },
+  onEnterActe2s3: function (instance) {
+    instance.whichBackground.set("axe_repas.png")
+  },
+  onEnterActe2s4: function (instance) {
+    instance.whichBackground.set("graphe_revenus_vs_repas.png")
   },
 }
