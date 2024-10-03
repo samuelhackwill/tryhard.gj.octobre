@@ -3,8 +3,9 @@ import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
 import { getRandomBossAccessory, getRandomAccessory } from "./dressup.js"
+import { getRandomTree } from "./trees.js"
 import { stepper } from "./stepper.js"
-import { sendToSides, circleRoutine, dressupAnimation, killAnimation } from "./bots.js"
+import { sendToSides, circleRoutine, dressupAnimation, killAnimation, treePickUpAnimation } from "./bots.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -19,6 +20,7 @@ let bots = []
 Template.show.onCreated(function () {
   this.currentState = new ReactiveVar(states.INITIAL)
   this.areNamesHidden = new ReactiveVar(true)
+  this.plantedTrees = new ReactiveDict()
   // Initialize the reactive dictionary to keep track of each client's pointer position.
   this.pointers = new ReactiveDict()
 
@@ -134,6 +136,9 @@ Template.show.helpers({
       return pointers
     }
   },
+  allPlantedTrees() {
+    return Object.values(instance.plantedTrees.all())
+  },
   showState() {
     return [Template.instance().currentState.get()]
   },
@@ -143,6 +148,21 @@ Template.show.helpers({
 })
 
 Template.show.events({
+  "click #background"(event, tpl, extra) {
+    if (!extra) return
+    let pointer = instance.pointers.get(extra.pointer.id)
+
+    //Does the pointer currently hold a tree?
+    if(pointer.tree) {
+      //Make up a new tree identifier (they're sequential)
+      let newTreeId = "tree-" + Object.keys(instance.plantedTrees.all()).length;
+      //Add that tree to the reactive plantedTrees dictionary, so it can appear on the page
+      instance.plantedTrees.set(newTreeId, {coords:pointer.coords, tree:pointer.tree})
+      //The pointer no longer holds a tree
+      pointer.tree = null
+      instance.pointers.set(pointer.id, pointer)
+    }
+  },
   "click button"() {
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
     console.log("SHOW.JS button clicked. ", this)
@@ -169,6 +189,17 @@ Template.show.events({
     } else {
       dressupAnimation(pointer, getRandomAccessory())
     }
+
+    instance.pointers.set(pointer.id, pointer)
+  },
+  "click #folderTrees"(event, tpl, extra) {
+    if (!extra) return //No extra data was provided: we don't know which pointer clicked?
+    let pointer = instance.pointers.get(extra.pointer.id)
+
+    //Don't let locked pointers change their accessories
+    if (pointer.locked) return
+
+    treePickUpAnimation(pointer, getRandomTree())
 
     instance.pointers.set(pointer.id, pointer)
   },
@@ -263,6 +294,7 @@ function createPointer(id, bot = false) {
     gravity: 0, //in pixels per second
     locked: false,
     opacity: 1,
+    tree: null
   }
 }
 function createBot(id) {
