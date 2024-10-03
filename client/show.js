@@ -208,19 +208,16 @@ simulateMouseDown = function (pointer) {
 function getElementUnder(pointer) {
   let elements = document.elementsFromPoint(pointer.coords.x, pointer.coords.y)
 
+  //Ignore elements without an id
+  elements = elements.filter((e) => e.id != "")
   //Ignore the pointer itself
   elements = elements.filter((e) => e.id != "pointer" + pointer.id)
 
-  if (elements.length == 0) return null
-  let element = elements[0]
-
-  if (element.id == "") {
-    //We only interact with elements that have an id, this one doesn't.
-    //Find its nearest parent that does
-    element = element.closest("*[id]")
-    if (element == null) return null
+  if (elements.length == 0) {
+    return null
+  } else {
+    return elements[0]
   }
-  return element
 }
 
 function checkHover(pointer) {
