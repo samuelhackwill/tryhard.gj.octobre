@@ -80,22 +80,24 @@ export const transition = function (event, instance) {
       if (event === events.LANCER_LE_SPECTACLE) {
         instance.currentState.set(states.ACTE1s2)
       }
+      if (event === events.VRAIMENT_LANCER_LE_SPECTACLE) {
+        instance.currentState.set(states.ACTE2s1)
+        triggers.onEnterActe1s2(instance)
+      }
+
       break
 
     case "ACTE1s2":
       if (event === events.VRAIMENT_LANCER_LE_SPECTACLE) {
         instance.currentState.set(states.ACTE2s1)
+        triggers.onEnterActe1s2(instance)
       }
       break
   }
 }
 
 export const triggers = {
-  onEnterInitial: function (instance) {
-    // parX = instance.paragraphIndex.set(0)
-    // element = document.getElementById("bulle")
-    // element.ontransitionend = () => {
-    //   transition(Events.BOX_ANIMATION_FINISHED, instance)
-    // }
+  onEnterActe1s2: function (instance) {
+    instance.isAdminOpen.set(false)
   },
 }
