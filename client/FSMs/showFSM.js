@@ -14,29 +14,21 @@ export const states = {
 
   // ACTE II
   ACTE2s1: "ACTE2s1",
-  // les joueureuses/bots apparaissent (fade in)
+  // les joueureuses/bots apparaissent (fade in), samuel gagne le droit de parole, les joueureuses se rassemblent ici, là, la bas, sans chagement de background.
   ACTE2s2: "ACTE2s2",
-  // samuel gagne le droit de parler & les joueureuses doivent se rassembler devant samuel
-  ACTE2s3: "ACTE2s3",
-  // les joueureuses doivent faire un cerle autour de samuel
-  ACTE2s4: "ACTE2s4",
-  // les joueureuses doivent faire un carré autour de samuel
-  ACTE2s5: "ACTE2s5",
-  // les joueureuses doivent se mettre de part à d'autre de l'écran
-  ACTE2s6: "ACTE2s6",
   // les joueureuses doivent se mettre sur un axe en fonction de leurs revenus
-  ACTE2s6: "ACTE2s7",
+  ACTE2s3: "ACTE2s3",
   // les joueureuses doivent se mettre sur un axe en fonction de la dernière fois qu'iels ont mangé
-  ACTE2sc7: "ACTE2sc8",
+  ACTE2s4: "ACTE2s4",
   // les joueureuses doivent se placer sur un graphe
 
   CUT: "CUT",
   // CUT
 
-  ACTE3sc1: "ACTE3sc3",
-  // samuel parle de douglas englebart pendant que les joueureuses plantent des arbres
-  ACTE3sc2: "ACTE3sc2",
-  // samuel dit que c'est fini et qu'il va tuer tout le monde.
+  ACTE3s1: "ACTE3s1",
+  // samuel parle de (sapin) douglas englebart pendant que les joueureuses plantent des arbres
+  ACTE3s2: "ACTE3s2",
+  // samuel dit que c'est fini et maintenant il va tuer tout le monde donc cachez vous bien.
 
   // fin
 }

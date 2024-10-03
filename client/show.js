@@ -30,6 +30,7 @@ Template.show.onCreated(function () {
   // ux state for windows
   this.isAdminOpen = new ReactiveVar(false)
   this.adminPosition = new ReactiveVar([0, 0])
+  this.whichBackground = new ReactiveVar(null)
 
   // make instance callable from everywhere
   instance = this
@@ -145,13 +146,18 @@ Template.show.helpers({
 })
 
 Template.show.events({
-  "click #background"(event, tpl, extra) {
+  "click .backgroundContainer"(event, tpl, extra) {
     if (!extra) return
     let pointer = instance.pointers.get(extra.pointer.id)
 
     if (extra.pointer.id == "samuel") {
       tpl.isAdminOpen.set(false)
     }
+  },
+
+  "click #background"(event, tpl, extra) {
+    if (!extra) return
+    let pointer = instance.pointers.get(extra.pointer.id)
 
     //Does the pointer currently hold a tree?
     if (pointer.tree) {
@@ -220,13 +226,13 @@ simulateMouseUp = function (pointer) {
   const elements = getElementsUnder(pointer)
   if (elements.length == 0) return
 
-  elements.forEach(e => e.classList.remove("clicked"));
+  elements.forEach((e) => e.classList.remove("clicked"))
 }
 
 simulateMouseDown = function (pointer) {
   const elements = getElementsUnder(pointer)
   if (elements.length == 0) return
-  elements.forEach(element => {
+  elements.forEach((element) => {
     // we need to restrict clicks on privileged buttons, like the admin buttons
     // so that only samuel can click on them.
     if (element.classList.contains("privileged") && pointer.id != "samuel") {
@@ -252,8 +258,8 @@ function getElementsUnder(pointer) {
 
 function checkHover(pointer) {
   let prevHoveredElement = document.getElementById(pointer.hoveredElement)
-  let currentHoveredElements = getElementsUnder(pointer);
-  if(currentHoveredElements.length == 0) return;
+  let currentHoveredElements = getElementsUnder(pointer)
+  if (currentHoveredElements.length == 0) return
   let currentHoveredElement = currentHoveredElements[0]
 
   //"We were hovering something, now we're hovering something else"
@@ -277,7 +283,7 @@ function checkHover(pointer) {
 //A buffered click is a click that was added as part of an animation (usually for bots), waiting for the end of the frame to be applied
 function checkBufferedClick(pointer) {
   //If there's a buffered click: do it now
-  if(pointer.bufferedClick) {
+  if (pointer.bufferedClick) {
     simulateMouseDown(pointer)
     simulateMouseUp(pointer)
   }
