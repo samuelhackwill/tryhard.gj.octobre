@@ -3,7 +3,6 @@ import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
 import { getRandomBossAccessory, getRandomAccessory } from "./dressup.js"
-import { clampPointToArea } from "../both/math-helpers.js"
 import { stepper } from "./stepper.js"
 import { sendToSides, circleRoutine, dressupAnimation } from "./bots.js"
 
@@ -16,13 +15,14 @@ import { GlobalEvents, GlobalEvent } from "./FSMs/globalEvents.js"
 let eventQueue = []
 let pointers = []
 let bots = []
-let windowBoundaries = { x:0, y:0, width: window.innerWidth, height: window.innerHeight };
 
 Template.show.onCreated(function () {
   this.currentState = new ReactiveVar(states.INITIAL)
   this.areNamesHidden = new ReactiveVar(true)
   // Initialize the reactive dictionary to keep track of each client's pointer position.
   this.pointers = new ReactiveDict()
+
+  this.windowBoundaries = { x:0, y:0, width: window.innerWidth, height: window.innerHeight - 60 };
 
   // fuuuuu
   instance = this
@@ -45,7 +45,7 @@ Template.show.onCreated(function () {
   }
 
   //POC bot routine
-  sendToSides(bots, windowBoundaries)
+  sendToSides(bots, this.windowBoundaries)
   circleRoutine(bots);
   bots.forEach(b => this.pointers.set(b.id, b));
 })
@@ -58,7 +58,6 @@ Template.show.onDestroyed(function() {
 }); 
 Template.show.onRendered(function () {
   streamer.emit("showInit", { width: window.innerWidth, height: window.innerHeight })
-  windowBoundaries = { x:0, y:0, width: window.innerWidth, height: window.innerHeight }
 
   this.autorun(() => {
     // console.log("show RE-RENDERING because of global event : ", GlobalEvent.get())
@@ -95,8 +94,6 @@ function handlePointerMessage(message) {
     //Apply that change to the coords
     pointer.coords.x += message.coords.x;
     pointer.coords.y += message.coords.y;
-    //Enforce window boundaries
-    pointer.coords = clampPointToArea(pointer.coords, windowBoundaries);
     //Save the pointer
     instance.pointers.set(pointer.id, pointer);
   } else if (message.type == "mousedown") {
