@@ -22,7 +22,7 @@ function applyGravity(p) {
 function stepEventQueue(pointer) {
   //Whent the event queue is empty,
   if(pointer.events.length == 0){
-    if(pointer.bot && !pointer.lock) {
+    if(pointer.bot && !pointer.locked) {
       //Bots get random commands
       getRandomIdleRoutine(pointer);
       return
