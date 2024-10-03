@@ -3,6 +3,9 @@ import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
 import { applyRandomAccessory } from "./dressup.js"
+import { clampPointToArea } from "../both/math-helpers.js"
+import { stepper } from "./stepper.js"
+import { sendToSides, circleRoutine } from "./bots.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -10,8 +13,10 @@ import "./show.html"
 import { states, events, transition, triggers } from "./FSMs/showFSM.js"
 import { GlobalEvents, GlobalEvent } from "./FSMs/globalEvents.js"
 
-let Lastelement = null
-let animationFrame
+let eventQueue = []
+let pointers = []
+let bots = []
+let windowBoundaries = { x:0, y:0, width: window.innerWidth, height: window.innerHeight };
 
 Template.show.onCreated(function () {
   this.currentState = new ReactiveVar(states.INITIAL)
@@ -21,10 +26,35 @@ Template.show.onCreated(function () {
 
   // fuuuuu
   instance = this
-})
+  
+  //Start the stepper at a fixed framerate (60fps)
+  this.stepInterval = Meteor.setInterval(()=>{ stepper(instance) }, (1 / 60.0) * 1000)
+  //Listen to logger events (one message whenever a pointer moves or clicks)
+  streamer.on("pointerMessage", handlePointerMessage);
 
+  //Create 96 bots
+  this.bots = [] //Keep the array of bots on hand, it's easier than filtering this.pointers every time
+  for(let i = 0; i < 96; i++) {
+    let bot = createBot("bot" + i);
+    this.pointers.set(bot.id, bot);
+    bots.push(bot);
+  }
+
+  //POC bot routine
+  sendToSides(bots, windowBoundaries)
+  circleRoutine(bots);
+  bots.forEach(b => this.pointers.set(b.id, b));
+})
+Template.show.onDestroyed(function() {
+  //Stop the stepper
+  clearInterval(this.stepInterval);
+  //Stop listening to logger events
+  streamer.removeAllListeners("pointerMessage");
+  pointers = []
+}); 
 Template.show.onRendered(function () {
   streamer.emit("showInit", { width: window.innerWidth, height: window.innerHeight })
+  windowBoundaries = { x:0, y:0, width: window.innerWidth, height: window.innerHeight }
 
   this.autorun(() => {
     // console.log("show RE-RENDERING because of global event : ", GlobalEvent.get())
@@ -47,43 +77,31 @@ Template.show.onRendered(function () {
     }
   })
 })
+function handlePointerMessage(message) {
+  let pointer = instance.pointers.get(message.loggerId)
 
-streamer.on("displayMessage", function (message) {
-  // Ensure the code only runs on the 'show' route to avoid unwanted executions.
-  if (FlowRouter.getRouteName() === "show") {
-    //message.pointers contains all the pointers that have changed state this frame (moved, etc)
-    // => reflect this change on the reactive dictionary
-    message.pointers.forEach((pointerData) => {
-      //Get the reactive pointer
-      let pointer = instance.pointers.get(pointerData.id)
-      if (!pointer) {
-        //It doesn't exist: we don't have any other data than what the server sent us
-        pointer = pointerData
-      } else {
-        //Apply all the updated data sent by the server
-        //(Note that this doesn't erase any of the state we set in this client, e.g. what's being hovered)
-        pointer = Object.assign(pointer, pointerData)
-      }
-      //Save the updated pointer state
-      instance.pointers.set(pointer.id, pointer)
-      //Note that we shouldn't change `pointer` after this point,
-      // and especially not write to `instance.pointers`!
-      //This is because simulating the events might trigger a bunch of things,
-      // including template events, which may want to access the reactive pointers too.
-
-      //Handle events
-      if (pointer.mousedown) {
-        simulateMouseDown(pointer)
-      }
-      if (pointer.mouseup) {
-        simulateMouseUp(pointer)
-      }
-
-      //Update the hover state, in case the pointer moved
-      checkHover(pointer)
-    })
+  //We don't know this pointer yet.
+  //Welcome!
+  if (pointer == undefined) {
+    pointer = createPointer(message.loggerId)
   }
-})
+  
+  if(message.type == "move") {
+    //Move messages are relative (e.g. 1px right, 2px down)
+    //Apply that change to the coords
+    pointer.coords.x += message.coords.x;
+    pointer.coords.y += message.coords.y;
+    //Enforce window boundaries
+    pointer.coords = clampPointToArea(pointer.coords, windowBoundaries);
+    //Save the pointer
+    instance.pointers.set(pointer.id, pointer);
+    checkHover(pointer)
+  } else if (message.type == "mousedown") {
+    simulateMouseDown(pointer);
+  } else if (message.type == "mouseup") {
+    simulateMouseUp(pointer);
+  }
+}
 
 Template.show.helpers({
   areNamesHidden() {
@@ -197,4 +215,18 @@ function addToDataAttribute(element, attr, amount) {
   } else {
     element.setAttribute(attr, value)
   }
+}
+
+function createPointer(id, bot = false) {
+  return {
+    id: id,
+    coords: {x:0,y:0},
+    events: [],
+    bot: bot,
+    seed: Math.random()*1000000,
+    gravity: 0 //in pixels per second
+  }
+}
+function createBot(id) {
+  return createPointer(id, true);
 }

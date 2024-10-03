@@ -23,3 +23,19 @@ export const randomBetween = function( min, max ) {
 export const peakAtHalf = function( x ) {
   return -4*(x*x) + 4*x
 }
+
+export const clampPointToArea = function(point, area) {
+  if (point.x < 0) {
+    point.x = area.x
+  }
+  if (point.y < 0) {
+    point.y = area.y
+  }
+  if (point.x > area.width) {
+    point.x = area.width
+  }
+  if (point.y > area.height) {
+    point.y = area.height
+  }
+  return point
+}

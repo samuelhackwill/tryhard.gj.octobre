@@ -14,8 +14,6 @@ export const sendToSides = function(pointers, area) {
 
     //Store these coords as "home coordinates", so we can easily go back to them later
     p.homeCoords = {...p.coords};
-
-    p.dirty = true;
     return p;
   })
 } 
