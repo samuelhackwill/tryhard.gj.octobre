@@ -218,28 +218,29 @@ Template.show.events({
 })
 
 simulateMouseUp = function (pointer) {
-  const element = getElementUnder(pointer)
-  if (element == null) return
+  const elements = getElementsUnder(pointer)
+  if (elements.length == 0) return
 
-  element.classList.remove("clicked")
+  elements.forEach(e => e.classList.remove("clicked"));
 }
 
 simulateMouseDown = function (pointer) {
-  const element = getElementUnder(pointer)
-  if (element == null) return
+  const elements = getElementsUnder(pointer)
+  if (elements.length == 0) return
+  elements.forEach(element => {
+    // we need to restrict clicks on privileged buttons, like the admin buttons
+    // so that only samuel can click on them.
+    if (element.classList.contains("privileged") && pointer.id != "samuel") {
+      return
+    }
 
-  // we need to restrict clicks on privileged buttons, like the admin buttons
-  // so that only samuel can click on them.
-  if (element.classList.contains("privileged") && pointer.id != "samuel") {
-    return
-  }
-
-  //Trigger a jQuery click event with extra data (the pointer)
-  $(element).trigger("click", { pointer: pointer })
-  element.classList.remove("clicked")
+    //Trigger a jQuery click event with extra data (the pointer)
+    $(element).trigger("click", { pointer: pointer })
+    element.classList.remove("clicked")
+  })
 }
 
-function getElementUnder(pointer) {
+function getElementsUnder(pointer) {
   let elements = document.elementsFromPoint(pointer.coords.x, pointer.coords.y)
 
   //Ignore elements without an id
@@ -247,16 +248,14 @@ function getElementUnder(pointer) {
   //Ignore the pointer itself
   elements = elements.filter((e) => e.id != "pointer" + pointer.id)
 
-  if (elements.length == 0) {
-    return null
-  } else {
-    return elements[0]
-  }
+  return elements
 }
 
 function checkHover(pointer) {
   let prevHoveredElement = document.getElementById(pointer.hoveredElement)
-  let currentHoveredElement = getElementUnder(pointer)
+  let currentHoveredElements = getElementsUnder(pointer);
+  if(currentHoveredElements.length == 0) return;
+  let currentHoveredElement = currentHoveredElements[0]
 
   //"We were hovering something, now we're hovering something else"
   if (prevHoveredElement != currentHoveredElement) {
