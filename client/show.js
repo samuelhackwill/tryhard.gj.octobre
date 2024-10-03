@@ -2,7 +2,7 @@ import { Template } from "meteor/templating"
 import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
-import { applyRandomAccessory, getRandomAccessory } from "./dressup.js"
+import { getRandomBossAccessory, getRandomAccessory } from "./dressup.js"
 import { clampPointToArea } from "../both/math-helpers.js"
 import { stepper } from "./stepper.js"
 import { sendToSides, circleRoutine, dressupAnimation } from "./bots.js"
@@ -151,7 +151,12 @@ Template.show.events({
     //Don't let locked pointers change their accessories
     if(pointer.locked) return;
 
-    dressupAnimation(pointer, getRandomAccessory())
+    if(pointer.id == "samuel") {
+      dressupAnimation(pointer, getRandomBossAccessory())
+    } else {
+      dressupAnimation(pointer, getRandomAccessory())
+    }
+    
     instance.pointers.set(pointer.id, pointer)
   },
 })

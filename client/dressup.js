@@ -14,7 +14,8 @@ export const getRandomAccessory = function() {
     return accessories[pick]
 }
 
-//Apply a random accessory to the given pointer
-export const applyRandomAccessory = function( pointer ) {
-    pointer.accessory = getRandomAccessory()
-} 
+export const getRandomBossAccessory = function() {
+    let collection = ["👑","🎩", ...accessories]
+    let pick = Math.floor(Math.random() * collection.length)
+    return collection[pick]
+}
