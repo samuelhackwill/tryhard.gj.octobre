@@ -12,7 +12,7 @@ export const states = {
   ACTE1s2: "ACTE1s2",
   // samuel démarre le spectacle mais doit prouver qu'il n'est pas un robot
   ACTE2s1: "ACTE2s1",
-  // les joueureuses/bots apparaissent en tombant du ciel
+  // les joueureuses/bots apparaissent
 
   // ACTE II
   ACTE2s2: "ACTE2s2",
@@ -35,11 +35,20 @@ export const events = {
   LANCER_LE_SPECTACLE: "LANCER_LE_SPECTACLE",
   OUVRIR_LA_FNET: "OUVRIR_LA_FNET",
   VRAIMENT_LANCER_LE_SPECTACLE: "VRAIMENT_LANCER_LE_SPECTACLE",
+  MONTRER_LE_NOM_DES_CURSEURS: "MONTRER_LE_NOM_DES_CURSEURS",
 }
 
 export const transition = function (event, instance) {
-  // console.log("bulle transition!", event, facultativeContext)
+  // ici pour les transitions qui ne causent pas de changement d'état.. uhu
+  if (event === events.MONTRER_LE_NOM_DES_CURSEURS) {
+    _ = instance.areNamesHidden.get()
+    _ = !_
+    instance.areNamesHidden.set(_)
+    console.log("are names hidden = ", _)
+    return
+  }
 
+  // ici les transitions plus classiques
   switch (instance.currentState.get()) {
     case "INITIAL":
       if (event === events.OUVRIR_LA_FNET) {

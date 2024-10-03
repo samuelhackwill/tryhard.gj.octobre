@@ -15,7 +15,7 @@ let animationFrame
 
 Template.show.onCreated(function () {
   this.currentState = new ReactiveVar(states.INITIAL)
-
+  this.areNamesHidden = new ReactiveVar(true)
   // Initialize the reactive dictionary to keep track of each client's pointer position.
   this.pointers = new ReactiveDict()
 
@@ -86,6 +86,13 @@ streamer.on("displayMessage", function (message) {
 })
 
 Template.show.helpers({
+  areNamesHidden() {
+    if (Template.instance().areNamesHidden.get() === true) {
+      return "opacity-0"
+    } else {
+      return "opacity-1"
+    }
+  },
   // Get all client pointers for iteration if you want to display all.
   allPointers(arg) {
     if (arg.hash.getAdmin === true) {
@@ -116,12 +123,12 @@ Template.show.events({
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
     console.log("SHOW.JS button clicked.")
   },
-  "click #folderVestiaire" (event, tpl, extra) {
-    if(!extra) return //No extra data was provided: we don't know which pointer clicked?
+  "click #folderVestiaire"(event, tpl, extra) {
+    if (!extra) return //No extra data was provided: we don't know which pointer clicked?
     let pointer = instance.pointers.get(extra.pointer.id)
     applyRandomAccessory(pointer)
     instance.pointers.set(pointer.id, pointer)
-  }
+  },
 })
 
 simulateMouseUp = function (pointer) {
@@ -172,7 +179,7 @@ function checkHover(pointer) {
     }
     //Update the pointer state
     pointer.hoveredElement = currentHoveredElement ? currentHoveredElement.id : null
-    instance.pointers.set(pointer.id, pointer);
+    instance.pointers.set(pointer.id, pointer)
     //Update the hover counter of the new element (if there's one)
     if (currentHoveredElement) {
       addToDataAttribute(currentHoveredElement, "hovered", 1)
