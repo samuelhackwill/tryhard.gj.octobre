@@ -2,10 +2,10 @@ import { Template } from "meteor/templating"
 import { ReactiveDict } from "meteor/reactive-dict"
 import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
-import { applyRandomAccessory } from "./dressup.js"
+import { applyRandomAccessory, getRandomAccessory } from "./dressup.js"
 import { clampPointToArea } from "../both/math-helpers.js"
 import { stepper } from "./stepper.js"
-import { sendToSides, circleRoutine } from "./bots.js"
+import { sendToSides, circleRoutine, dressupAnimation } from "./bots.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -39,6 +39,7 @@ Template.show.onCreated(function () {
   this.bots = [] //Keep the array of bots on hand, it's easier than filtering this.pointers every time
   for(let i = 0; i < 96; i++) {
     let bot = createBot("bot" + i);
+    bot.locked = true;
     this.pointers.set(bot.id, bot);
     bots.push(bot);
   }
@@ -89,7 +90,7 @@ function handlePointerMessage(message) {
     pointer = createPointer(message.loggerId)
   }
   
-  if(message.type == "move") {
+  if(message.type == "move" && !pointer.locked) {
     //Move messages are relative (e.g. 1px right, 2px down)
     //Apply that change to the coords
     pointer.coords.x += message.coords.x;
@@ -146,7 +147,11 @@ Template.show.events({
   "click #folderVestiaire"(event, tpl, extra) {
     if (!extra) return //No extra data was provided: we don't know which pointer clicked?
     let pointer = instance.pointers.get(extra.pointer.id)
-    applyRandomAccessory(pointer)
+
+    //Don't let locked pointers change their accessories
+    if(pointer.locked) return;
+
+    dressupAnimation(pointer, getRandomAccessory())
     instance.pointers.set(pointer.id, pointer)
   },
 })
@@ -226,7 +231,9 @@ function createPointer(id, bot = false) {
     events: [],
     bot: bot,
     seed: Math.random()*1000000,
-    gravity: 0 //in pixels per second
+    gravity: 0, //in pixels per second
+    locked: false,
+    opacity: 1
   }
 }
 function createBot(id) {

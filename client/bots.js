@@ -53,3 +53,13 @@ export const circleRoutine = function(pointers) {
       })
     }
   }
+
+export const dressupAnimation = function(pointer, accessory) {
+  pointer.events.push({type:"fade", from:null, to:0, duration:150})
+  pointer.events.push({type:"lock", state:true})
+  pointer.events.push({type:"wait", duration:800})
+  pointer.events.push({type:"accessory", accessory:accessory})
+  pointer.events.push({type:"fade", from:null, to:1, duration:150})
+  pointer.events.push({type:"move", from:null, to:{x:pointer.coords.x + 80, y:pointer.coords.y}, duration:350})
+  pointer.events.push({type:"lock", state:false})
+}

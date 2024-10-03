@@ -32,13 +32,32 @@ function stepEventQueue(pointer) {
   //Use t as a shorthand for the relative time elapsed in this event
   //t=0 at the start of the animation,
   //t=1 at the end of the animation
-  let t = event.elapsed/event.duration;
+  let t
+  if(event.duration) {
+    t = event.elapsed/event.duration
+  } else 
+  {
+    //Special case: events without a duration are instantaneous
+    //Consider the animation over
+    t = 1
+  }
 
   //Process the event, based on its type.
   //We probably want to do something based on event.elapsezd
   switch(event.type) {
     case "wait":
     //console.log("waiting " + ((event.elapsed/event.duration) * 100) + "%")
+    break;
+    case "lock":
+      pointer.locked = event.state
+    break;
+    case "accessory":
+      pointer.accessory = event.accessory;
+    break;
+    case "fade":
+      if(event.from == null) event.from = pointer.opacity
+      if(event.to == null) event.to = pointer.opacity
+      pointer.opacity = lerp(event.from, event.to, t)
     break;
     case "move":
     //Use the current coordinates for `from` and `to` if they have not been specified 
@@ -86,7 +105,7 @@ function stepEventQueue(pointer) {
   }
 
   //If the event isn't finished, replace in the queue, to be further consumed next frame
-  if(event.elapsed < event.duration) {
+  if(event.elapsed < event.duration??0) {
     pointer.events.unshift(event)
   }
 }
