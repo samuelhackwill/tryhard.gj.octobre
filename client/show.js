@@ -28,7 +28,10 @@ Template.show.onCreated(function () {
   instance = this
   
   //Start the stepper at a fixed framerate (60fps)
-  this.stepInterval = Meteor.setInterval(()=>{ stepper(instance) }, (1 / 60.0) * 1000)
+  this.stepInterval = Meteor.setInterval(
+    stepper.bind(this, [checkHover]), //Call stepper, passing `this` as the context, and an array of callbacks to call on each pointer every frame
+    (1 / 60.0) * 1000 //60 frames per second <=> (1000/60)ms per frame
+  )
   //Listen to logger events (one message whenever a pointer moves or clicks)
   streamer.on("pointerMessage", handlePointerMessage);
 
@@ -95,7 +98,6 @@ function handlePointerMessage(message) {
     pointer.coords = clampPointToArea(pointer.coords, windowBoundaries);
     //Save the pointer
     instance.pointers.set(pointer.id, pointer);
-    checkHover(pointer)
   } else if (message.type == "mousedown") {
     simulateMouseDown(pointer);
   } else if (message.type == "mouseup") {

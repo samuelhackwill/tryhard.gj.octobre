@@ -2,12 +2,13 @@ import { lerp, peakAtHalf } from "../both/math-helpers.js"
 import { ValueNoise } from 'value-noise-js';
 const noise = new ValueNoise();
 
-export const stepper = function(instance) {
-  for(let id of Object.keys(instance.pointers.keys)) {
-    let pointer = instance.pointers.get(id)
+export const stepper = function(pointerCallbacks = []) {
+  for(let id of Object.keys(this.pointers.keys)) {
+    let pointer = this.pointers.get(id)
     stepEventQueue(pointer);
     applyGravity(pointer)
-    instance.pointers.set(id, pointer);
+    this.pointers.set(id, pointer);
+    pointerCallbacks.forEach(c => c(pointer));
   }
 }
 
