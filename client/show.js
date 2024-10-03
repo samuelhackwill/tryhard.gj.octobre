@@ -4,7 +4,7 @@ import { streamer } from "../both/streamer.js"
 import { FlowRouter } from "meteor/ostrio:flow-router-extra"
 import { getRandomBossAccessory, getRandomAccessory } from "./dressup.js"
 import { stepper } from "./stepper.js"
-import { sendToSides, circleRoutine, dressupAnimation } from "./bots.js"
+import { sendToSides, circleRoutine, dressupAnimation, killAnimation } from "./bots.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -140,6 +140,17 @@ Template.show.events({
   "click button"() {
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
     console.log("SHOW.JS button clicked.")
+  },
+  "click .pointer"(event, tpl, extra) {
+
+    //Boss "kill on click" behaviour
+    if(extra.pointer.id == "samuel") {
+      //We're a pointer clicking on another pointer (the _pointee_)
+      let pointeeId = event.target.getAttribute("pointer-id")
+      let pointee = instance.pointers.get(pointeeId)
+      killAnimation(pointee);
+      instance.pointers.set(pointee.id, pointee)
+    }
   },
   "click #folderVestiaire"(event, tpl, extra) {
     if (!extra) return //No extra data was provided: we don't know which pointer clicked?

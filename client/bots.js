@@ -63,3 +63,11 @@ export const dressupAnimation = function(pointer, accessory) {
   pointer.events.push({type:"move", from:null, to:{x:pointer.coords.x + 80, y:pointer.coords.y}, duration:350})
   pointer.events.push({type:"lock", state:false})
 }
+
+export const killAnimation = function(pointer) {
+  pointer.events = []
+  pointer.lock = true
+  pointer.gravity = 400
+  pointer.opacity = 0.75
+  pointer.accessory = "💀"
+}
