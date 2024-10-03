@@ -11,13 +11,7 @@ Template.folderAdmin.helpers({
   },
 })
 
-Template.folderAdmin.events({
-  "click .folder"() {
-    // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
-    console.log("Folder clicked")
-    GlobalEvent.set(GlobalEvents.OUVRIR_LA_FNET)
-  },
-})
+Template.folderAdmin.events({})
 
 Template.folderVestiaire.onCreated(function () {
   this.pos = new ReactiveVar([800, 100])

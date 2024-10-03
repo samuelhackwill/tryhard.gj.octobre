@@ -22,40 +22,45 @@ Template.show.onCreated(function () {
   // Initialize the reactive dictionary to keep track of each client's pointer position.
   this.pointers = new ReactiveDict()
 
-  this.windowBoundaries = { x:0, y:0, width: window.innerWidth, height: window.innerHeight - 60 };
+  this.windowBoundaries = { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight - 60 }
 
   // fuuuuu
+  // ux state for windows
+  this.isAdminOpen = new ReactiveVar(false)
+  this.adminPosition = new ReactiveVar([0, 0])
+
+  // make instance callable from everywhere
   instance = this
-  
+
   //Start the stepper at a fixed framerate (60fps)
   this.stepInterval = Meteor.setInterval(
     stepper.bind(this, [checkHover]), //Call stepper, passing `this` as the context, and an array of callbacks to call on each pointer every frame
     (1 / 60.0) * 1000 //60 frames per second <=> (1000/60)ms per frame
   )
   //Listen to logger events (one message whenever a pointer moves or clicks)
-  streamer.on("pointerMessage", handlePointerMessage);
+  streamer.on("pointerMessage", handlePointerMessage)
 
   //Create 96 bots
   this.bots = [] //Keep the array of bots on hand, it's easier than filtering this.pointers every time
-  for(let i = 0; i < 96; i++) {
-    let bot = createBot("bot" + i);
-    bot.locked = true;
-    this.pointers.set(bot.id, bot);
-    bots.push(bot);
+  for (let i = 0; i < 96; i++) {
+    let bot = createBot("bot" + i)
+    bot.locked = true
+    this.pointers.set(bot.id, bot)
+    bots.push(bot)
   }
 
   //POC bot routine
   sendToSides(bots, this.windowBoundaries)
-  circleRoutine(bots);
-  bots.forEach(b => this.pointers.set(b.id, b));
+  circleRoutine(bots)
+  bots.forEach((b) => this.pointers.set(b.id, b))
 })
-Template.show.onDestroyed(function() {
+Template.show.onDestroyed(function () {
   //Stop the stepper
-  clearInterval(this.stepInterval);
+  clearInterval(this.stepInterval)
   //Stop listening to logger events
-  streamer.removeAllListeners("pointerMessage");
+  streamer.removeAllListeners("pointerMessage")
   pointers = []
-}); 
+})
 Template.show.onRendered(function () {
   streamer.emit("showInit", { width: window.innerWidth, height: window.innerHeight })
 
@@ -75,6 +80,7 @@ Template.show.onRendered(function () {
       // GlobalEvents.goToAIs2
 
       key = GlobalEvent.get()
+      console.log("GlobalEvents[key] ", GlobalEvents[key])
       transition(GlobalEvents[key], this)
       GlobalEvent.set(null)
     }
@@ -88,18 +94,18 @@ function handlePointerMessage(message) {
   if (pointer == undefined) {
     pointer = createPointer(message.loggerId)
   }
-  
-  if(message.type == "move" && !pointer.locked) {
+
+  if (message.type == "move" && !pointer.locked) {
     //Move messages are relative (e.g. 1px right, 2px down)
     //Apply that change to the coords
-    pointer.coords.x += message.coords.x;
-    pointer.coords.y += message.coords.y;
+    pointer.coords.x += message.coords.x
+    pointer.coords.y += message.coords.y
     //Save the pointer
-    instance.pointers.set(pointer.id, pointer);
+    instance.pointers.set(pointer.id, pointer)
   } else if (message.type == "mousedown") {
-    simulateMouseDown(pointer);
+    simulateMouseDown(pointer)
   } else if (message.type == "mouseup") {
-    simulateMouseUp(pointer);
+    simulateMouseUp(pointer)
   }
 }
 
@@ -139,16 +145,15 @@ Template.show.helpers({
 Template.show.events({
   "click button"() {
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
-    console.log("SHOW.JS button clicked.")
+    console.log("SHOW.JS button clicked. ", this)
   },
   "click .pointer"(event, tpl, extra) {
-
     //Boss "kill on click" behaviour
-    if(extra.pointer.id == "samuel") {
+    if (extra.pointer.id == "samuel") {
       //We're a pointer clicking on another pointer (the _pointee_)
       let pointeeId = event.target.getAttribute("pointer-id")
       let pointee = instance.pointers.get(pointeeId)
-      killAnimation(pointee);
+      killAnimation(pointee)
       instance.pointers.set(pointee.id, pointee)
     }
   },
@@ -157,15 +162,19 @@ Template.show.events({
     let pointer = instance.pointers.get(extra.pointer.id)
 
     //Don't let locked pointers change their accessories
-    if(pointer.locked) return;
+    if (pointer.locked) return
 
-    if(pointer.id == "samuel") {
+    if (pointer.id == "samuel") {
       dressupAnimation(pointer, getRandomBossAccessory())
     } else {
       dressupAnimation(pointer, getRandomAccessory())
     }
-    
+
     instance.pointers.set(pointer.id, pointer)
+  },
+  "click #folderAdmin"(event, tpl, extra) {
+    instance.adminPosition.set([event.pageX, event.pageY])
+    GlobalEvent.set(GlobalEvents.OUVRIR_LA_FNET)
   },
 })
 
@@ -193,12 +202,12 @@ simulateMouseDown = function (pointer) {
 
 function getElementUnder(pointer) {
   let elements = document.elementsFromPoint(pointer.coords.x, pointer.coords.y)
-  
+
   //Ignore the pointer itself
-  elements = elements.filter(e => e.id != "pointer"+pointer.id);
+  elements = elements.filter((e) => e.id != "pointer" + pointer.id)
 
   if (elements.length == 0) return null
-  let element = elements[0];
+  let element = elements[0]
 
   if (element.id == "") {
     //We only interact with elements that have an id, this one doesn't.
@@ -245,15 +254,15 @@ function addToDataAttribute(element, attr, amount) {
 function createPointer(id, bot = false) {
   return {
     id: id,
-    coords: {x:0,y:0},
+    coords: { x: 0, y: 0 },
     events: [],
     bot: bot,
-    seed: Math.random()*1000000,
+    seed: Math.random() * 1000000,
     gravity: 0, //in pixels per second
     locked: false,
-    opacity: 1
+    opacity: 1,
   }
 }
 function createBot(id) {
-  return createPointer(id, true);
+  return createPointer(id, true)
 }

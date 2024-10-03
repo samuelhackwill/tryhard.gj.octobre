@@ -11,11 +11,42 @@ const captchaIndex = new ReactiveVar(0)
 
 let fader = null
 
-Template.windowAdmin.onCreated(function () {
-  // this.feed = new ReactiveVar(["Je ne suis pas un robot"])
-})
-
 Template.windowAdmin.helpers({
+  isAdminOpen() {
+    let currentView = Template.instance().view
+
+    while (currentView != null) {
+      if (currentView.name == "Template.show") {
+        break
+      }
+      currentView = currentView.parentView
+    }
+
+    console.log("is admin open? ", currentView.templateInstance().isAdminOpen.get())
+    if (currentView.templateInstance().isAdminOpen.get() === true) {
+      return "transform: translate(-50%,-50%) scale3d(1, 1, 1);"
+    } else {
+      return "transform: translate(-50%,-50%) scale3d(0, 0, 0);"
+    }
+  },
+
+  getPos() {
+    // cherche parmi tes parents qui est le template que tu désire
+    // on s'en sert pour réutiliser le data contexte des parents, typiquement show
+    // qui est la personne que tout le composants ont en commun et a la responsabilité
+    // de gérer most of the state.
+    let currentView = Template.instance().view
+
+    while (currentView != null) {
+      if (currentView.name == "Template.show") {
+        break
+      }
+      currentView = currentView.parentView
+    }
+    coords = currentView.templateInstance().adminPosition.get()
+    return "left : " + coords[0] + "px; top:" + coords[1] + "px;"
+  },
+
   isSpecialButton() {
     if (this == "LANCER_LE_SPECTACLE") {
       return true
@@ -35,24 +66,19 @@ Template.windowAdmin.helpers({
     return Object.values(events)
   },
 
-  isOpen() {
-    // "this" is actually the state of SHOW which was passed to its children.
-    if (this.currentState == "INITIAL" || this.currentState == "ACTE2s1") {
-      return "opacity:0;"
-    } else {
-      return "opacity:80;"
-    }
-  },
   isItCaptchaTime() {
     // "this" is actually the state of SHOW which was passed to its children.
     if (Template.instance().data.currentState == "ACTE1s2") {
       return "display : block;"
     } else {
-      return "display : none"
+      return "display : none;"
     }
   },
   feed() {
     return feed.get()
+  },
+  getGlobalEvent() {
+    return GlobalEvent.get()
   },
 })
 
@@ -67,13 +93,8 @@ Template.windowAdmin.events({
   },
 })
 
-Template.captcha.onCreated(function () {})
-
-Template.captcha.onRendered(function () {})
-
 Template.captcha.helpers({
   hasInteracted() {
-    console.log("HAS INTERACTED ", this.hasInteracted)
     return this.hasInteracted
   },
 })
@@ -81,8 +102,6 @@ Template.captcha.helpers({
 Template.captcha.events({
   "click input"() {
     index = captchaIndex.get()
-
-    console.log(checkboxCaptchas)
 
     if (index < checkboxCaptchas.length - 1) {
       _feed = feed.get()
@@ -92,7 +111,6 @@ Template.captcha.events({
     } else {
       // trigger event! it's finished!
       fadeEveryCaptcha()
-      console.log("ok samuel n'est pas un robot")
       return
     }
 

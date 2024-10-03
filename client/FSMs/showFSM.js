@@ -47,6 +47,14 @@ export const transition = function (event, instance) {
     console.log("are names hidden = ", _)
     return
   }
+  if (event === events.OUVRIR_LA_FNET) {
+    _ = instance.isAdminOpen.get()
+    if (_ === true) {
+      instance.isAdminOpen.set(false)
+    } else {
+      instance.isAdminOpen.set(true)
+    }
+  }
 
   // ici les transitions plus classiques
   switch (instance.currentState.get()) {
