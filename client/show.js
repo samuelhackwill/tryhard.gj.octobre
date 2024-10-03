@@ -172,6 +172,7 @@ function checkHover(pointer) {
     }
     //Update the pointer state
     pointer.hoveredElement = currentHoveredElement ? currentHoveredElement.id : null
+    instance.pointers.set(pointer.id, pointer);
     //Update the hover counter of the new element (if there's one)
     if (currentHoveredElement) {
       addToDataAttribute(currentHoveredElement, "hovered", 1)
