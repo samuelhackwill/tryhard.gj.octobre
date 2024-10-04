@@ -186,6 +186,10 @@ const onEnterComplete = function (instance) {
   newText = oldText + restOfTheText
   instance.text.set(newText)
 
+  //TODO: Obviously refactor this omg
+  TellShowWeFinishedDisplayingParagraph(instance.text.get());
+
+
   instance.sentenceIndex.set(instance.sentenceIndex.get() + 1)
 }
 

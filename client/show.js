@@ -6,6 +6,8 @@ import { getRandomBossAccessory, getRandomAccessory } from "./dressup.js"
 import { getRandomTree } from "./trees.js"
 import { stepper } from "./stepper.js"
 import { sendToSides, circleRoutine, dressupAnimation, killAnimation, treePickUpAnimation } from "./bots.js"
+import { resetRoutine, welcomeRoutine, regroupRoutine, squareRoutine, playgroundRoutine, axisRoutine, graphRoutine } from "./bots.js"
+import { randomBetween } from "../both/math-helpers.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -16,6 +18,7 @@ import { GlobalEvents, GlobalEvent } from "./FSMs/globalEvents.js"
 let eventQueue = []
 let pointers = []
 let bots = []
+let players = []
 
 Template.show.onCreated(function () {
   this.currentState = new ReactiveVar(states.INITIAL)
@@ -45,13 +48,16 @@ Template.show.onCreated(function () {
 
   //Create 96 bots
   this.bots = [] //Keep the array of bots on hand, it's easier than filtering this.pointers every time
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 96; i++) {
     let bot = createBot("bot" + i)
+    //QUICKFIX: set a default state (hidden, not dead, etc). Probably should be done elsewhere
+    resetRoutine(bot)
     this.pointers.set(bot.id, bot)
     bots.push(bot)
   }
   //Keep this around: it gives bots a home position
   sendToSides(bots, this.windowBoundaries)
+  
   bots.forEach((b) => this.pointers.set(b.id, b))
 })
 Template.show.onDestroyed(function () {
@@ -93,6 +99,11 @@ function handlePointerMessage(message) {
   //Welcome!
   if (pointer == undefined) {
     pointer = createPointer(message.loggerId)
+    //QUICKFIX: set a default state for all the cursors (hidden, not dead, no accessory, etc)
+    if(pointer.id != "samuel") {
+      resetRoutine(pointer)
+    }
+    players.push(pointer);
   }
 
   if (message.type == "move" && !pointer.locked) {
@@ -231,7 +242,7 @@ Template.show.events({
       instance.adminPosition.set([event.pageX, event.pageY])
     }
     GlobalEvent.set(GlobalEvents.OUVRIR_LA_FNET)
-  },
+  }
 })
 
 simulateMouseUp = function (pointer) {
@@ -338,4 +349,91 @@ function createPointer(id, bot = false) {
 }
 function createBot(id) {
   return createPointer(id, true)
+}
+
+//Receives the text that finished displaying in the lettreur.
+//We can check what's displayed and react accordingly (eg launch a bot routine)
+TellShowWeFinishedDisplayingParagraph = function(text) {
+  switch(text) {
+    // ACTE II
+    case "Bonjour!":
+    // les joueureuses/bots apparaissent (fade in)
+      [...bots, ...players].forEach(p => {
+        pointer = instance.pointers.get(p.id)
+        welcomeRoutine(pointer)
+        instance.pointers.set(p.id, pointer)
+      })
+    break;
+    case "Est-ce que vous pourriez vous rassembler devant moi?":  
+      [...bots].forEach(p => {
+        pointer = instance.pointers.get(p.id)
+        regroupRoutine(pointer)
+        instance.pointers.set(p.id, pointer)
+      })
+    break;
+    case "est-ce que vous pourriez essayer de faire un cercle autour de moi?":
+    [...bots].forEach(p => {
+      pointer = instance.pointers.get(p.id)
+      circleRoutine(pointer)
+      instance.pointers.set(p.id, pointer)
+    })
+    break;
+    case "peut-être que ce serait mieux? merci vous êtes sympas.":
+    // les joueureuses doivent faire un carré autour de samuel
+    [...bots].forEach(p => {
+      pointer = instance.pointers.get(p.id)
+      squareRoutine(pointer)
+      instance.pointers.set(p.id, pointer)
+    })
+    break;
+    case "au milieu j'ai mis le salaire net médian en 2022 à titre de comparaison.":
+    // les joueureuses doivent se mettre sur un axe en fonction de leurs revenus
+    [...bots].forEach(p => {
+      pointer = instance.pointers.get(p.id)
+      axisRoutine(pointer, {xMin: 200, xMax:instance.windowBoundaries.width-200, y:instance.windowBoundaries.height*0.46})
+      instance.pointers.set(p.id, pointer)
+    })
+    break;
+    case "du genre":
+    // les joueureuses doivent se mettre sur un axe en fonction de la dernière fois qu'iels ont mangé
+    [...bots].forEach(p => {
+      pointer = instance.pointers.get(p.id)
+      axisRoutine(pointer, {xMin: 200, xMax:instance.windowBoundaries.width-200, y:instance.windowBoundaries.height*0.73})
+      instance.pointers.set(p.id, pointer)
+    })
+    break;
+    case "ou alors je sais pas, pourquoi pas ça sinon":
+      [...bots].forEach(p => {
+        pointer = instance.pointers.get(p.id)
+        graphRoutine(pointer, {xMin: instance.windowBoundaries.width * 0.25, xMax:instance.windowBoundaries.width * 0.75, yMin:instance.windowBoundaries.height*0.12, yMax:instance.windowBoundaries.height*0.77 })
+        instance.pointers.set(p.id, pointer)
+      })
+    break;
+
+    case "hmmm":
+      //Fin du minijeu de positionnement: les bots retournent à leur "maison"
+      [...bots].forEach(p => {
+        pointer = instance.pointers.get(p.id)
+        pointer.events.push({type:"humanizedMove", from:null, to:pointer.homeCoords??{x:0,y:0}, duration:randomBetween(2000,3000)})
+        instance.pointers.set(p.id, pointer)
+      });
+    break;
+  
+    case "pour en revenir au pointeur de souris":
+      [...bots].forEach(p => {
+        pointer = instance.pointers.get(p.id)
+        playgroundRoutine(pointer)
+        instance.pointers.set(p.id, pointer)
+      })
+    break;
+  
+    break;
+    case "cachez-vous parce que si j'arrive à vous toucher,":
+      [...bots].forEach(p => {
+        pointer = instance.pointers.get(p.id)
+        pointer.killable = true
+        instance.pointers.set(p.id, pointer)
+      })
+    break;
+  }
 }

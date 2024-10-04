@@ -16,43 +16,100 @@ export const sendToSides = function(pointers, area) {
     p.homeCoords = {...p.coords};
     return p;
   })
-} 
+}
 
 //A proof of concept "choreography" to test the bot AI logic
-export const circleRoutine = function(pointers) {
-    for(let i = 0; i < pointers.length; i++)
-    {
-      //Wait for a moment
-      pointers[i].events.push({
-        type: "wait", 
-        duration: randomBetween(500,5000),
-      })
+export const circleRoutine = function(pointer) {
+  pointer.events = []
+  //Wait for a moment
+  pointer.events.push({
+    type: "wait", 
+    duration: randomBetween(500,5000),
+  })
+
+  let samuelRect = document.querySelector("#pointersamuel").getBoundingClientRect()
+  let targetCoords = {x:samuelRect.x, y:samuelRect.y}
+
+  //Move to a position on a circle
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: positionOnCircle(targetCoords, 300, randomBetween(0,360)),
+  })
+  //Move to another position on the circle
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: positionOnCircle(targetCoords, 300, randomBetween(0,360)),
+  })
+  //Move to another position on the circle
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: positionOnCircle(targetCoords, 300, randomBetween(0,360)),
+  })
   
-      //Move to a position on a circle
-      pointers[i].events.push({
-        type: "humanizedMove", 
-        duration: randomBetween(1100, 2100),
-        from: null,
-        to: positionOnCircle({x:400,y:400}, 150, (i/pointers.length) * 360),
-      })
-  
-      //Wait, but wiggle while waiting
-      pointers[i].events.push({
-        type: "humanizedMove", 
-        duration: randomBetween(5000, 6000),
-        from: null,
-        to: null,
-      })
-  
-      //Go "home"
-      pointers[i].events.push({
-        type: "humanizedMove", 
-        duration: randomBetween(1100, 2100),
-        from: null,
-        to: pointers[i].homeCoords,
-      })
-    }
+  //Wait forever
+  pointer.events.push({type:"wait"})
+}
+
+export const squareRoutine = function(pointer) {
+  pointer.events = []
+  //Wait for a moment
+  pointer.events.push({
+    type: "wait", 
+    duration: randomBetween(500,5000),
+  })
+
+  let samuelRect = document.querySelector("#pointersamuel").getBoundingClientRect()
+  let side = randomBetween(0,4)
+  let squareSize = 400
+  let xMin = samuelRect.x - squareSize/2.0
+  let xMax = samuelRect.x + squareSize/2.0
+  let yMin = samuelRect.y - squareSize/2.0
+  let yMax = samuelRect.y + squareSize/2.0
+  let targetCoords = {x:0,y:0}
+  switch(side) {
+    case 0:
+      targetCoords.x = randomBetween(xMin, xMax)
+      targetCoords.y = yMin
+    break;
+    case 1:
+      targetCoords.x = xMax
+      targetCoords.y = randomBetween(yMin, yMax)
+    break;
+    case 2:
+      targetCoords.x = randomBetween(xMin, xMax)
+      targetCoords.y = yMax
+    break;
+    case 3:
+      targetCoords.x = xMin
+      targetCoords.y = randomBetween(yMin, yMax)
+    break;
   }
+
+  //Move to a position on a square
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: targetCoords,
+  })
+  //Move to another position on the square
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: null,
+  })
+  
+  //Wait forever
+  pointer.events.push({type:"wait"})
+}
+
 
 export const dressupAnimation = function(pointer, accessory) {
   pointer.events.push({type:"fade", from:null, to:0, duration:150})
@@ -177,3 +234,116 @@ export const killAnimation = function(pointer) {
   pointer.opacity = 0.75
   pointer.accessory = "💀"
 }
+
+export const resetRoutine = function(pointer) {
+  pointer.locked = true
+  pointer.opacity = 0
+  pointer.gravity = 0
+  pointer.events = []
+  pointer.tree = null
+  pointer.accessory = ""
+  pointer.killable = false
+}
+export const welcomeRoutine = function(pointer) {
+  pointer.events = []
+  //Unlock everyone, fade them in
+  pointer.events.push({type:"lock", state: false})
+  pointer.events.push({type:"fade", from:0, to:1, duration:3000})
+  pointer.events.push({type:"wait"})
+}
+export const regroupRoutine = function(pointer) {
+  
+  pointer.events = []
+  //Wait a bit
+  pointer.events.push({type:"wait",duration:randomBetween(2000,8000)})
+  pointer.events.push({type:"wait",duration:randomBetween(2000,8000)})
+  //Regroup near Samuel
+  let samuelRect = document.querySelector("#pointersamuel").getBoundingClientRect()
+  let targetCoords = randomPointInArea({
+    x: samuelRect.x - 250,
+    y: samuelRect.y + 210,
+    width: 500,
+    height: 200
+  })
+  pointer.events.push({
+    type:"humanizedMove",
+    from:null,
+    to:targetCoords,
+    duration:randomBetween(1200,4000)}
+  )
+  //Wait forever
+  pointer.events.push({type:"wait"})
+}
+
+export const axisRoutine = function(pointer, axisData) {
+  pointer.events = []
+
+  //Wait for a moment
+  pointer.events.push({
+    type: "wait", 
+    duration: randomBetween(500,5000),
+  })
+
+  let axisXMin = axisData.xMin
+  let axisXMax = axisData.xMax
+  let axisY = axisData.y
+  let lineWidth = 18
+  //Move to a target position on a line
+  console.log(axisXMin, axisXMax, axisY, lineWidth)
+  let targetCoords = randomPointInArea({x: axisXMin, y: axisY, width: axisXMax-axisXMin, height: lineWidth})
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: targetCoords,
+  })
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: null,
+  })
+  
+  //Wait forever
+  pointer.events.push({type:"wait"})
+}
+
+export const graphRoutine = function(pointer, graphData) {
+  pointer.events = []
+
+  //Go home while waiting for instructions
+  pointer.events.push({type:"humanizedMove", from:null, to:pointer.homeCoords??{x:0,y:0}, duration:randomBetween(2000,3000)})
+  //Wait for a moment
+  pointer.events.push({
+    type: "wait", 
+    duration: randomBetween(8000,15000),
+  })
+
+  let graphXMin = graphData.xMin
+  let graphXMax = graphData.xMax
+  let graphYMin = graphData.yMin
+  let graphYMax = graphData.yMax
+  let targetCoords = randomPointInArea({x: graphXMin, y: graphYMin, width: graphXMax-graphXMin, height: graphYMax - graphYMin})
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(1100, 2100),
+    from: null,
+    to: targetCoords,
+  })
+  pointer.events.push({
+    type: "humanizedMove", 
+    duration: randomBetween(4000, 8000),
+    from: null,
+    to: null,
+  })
+  
+  //Wait forever
+  pointer.events.push({type:"wait"})
+}
+
+export const playgroundRoutine = function(pointer) {
+  pointer.events = []
+}
+
+
+
