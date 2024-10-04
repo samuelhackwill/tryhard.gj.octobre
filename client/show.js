@@ -7,7 +7,7 @@ import { getRandomTree } from "./trees.js"
 import { stepper } from "./stepper.js"
 import { sendToSides, circleRoutine, dressupAnimation, killAnimation, treePickUpAnimation } from "./bots.js"
 import { resetRoutine, welcomeRoutine, regroupRoutine, squareRoutine, playgroundRoutine, axisRoutine, graphRoutine } from "./bots.js"
-import { randomBetween } from "../both/math-helpers.js"
+import { randomBetween } from "../both/math-helpers.js"
 
 import "./components/main.js"
 import "./show.html"
@@ -57,7 +57,7 @@ Template.show.onCreated(function () {
   }
   //Keep this around: it gives bots a home position
   sendToSides(bots, this.windowBoundaries)
-  
+
   bots.forEach((b) => this.pointers.set(b.id, b))
 })
 Template.show.onDestroyed(function () {
@@ -93,6 +93,7 @@ Template.show.onRendered(function () {
   })
 })
 function handlePointerMessage(message) {
+  console.log("debug ", message)
   let pointer = instance.pointers.get(message.loggerId)
 
   //We don't know this pointer yet.
@@ -100,10 +101,10 @@ function handlePointerMessage(message) {
   if (pointer == undefined) {
     pointer = createPointer(message.loggerId)
     //QUICKFIX: set a default state for all the cursors (hidden, not dead, no accessory, etc)
-    if(pointer.id != "samuel") {
-      resetRoutine(pointer)
+    if (pointer.id != "samuel") {
+      // resetRoutine(pointer)
     }
-    players.push(pointer);
+    players.push(pointer)
   }
 
   if (message.type == "move" && !pointer.locked) {
@@ -178,7 +179,9 @@ Template.show.events({
   "click #background"(event, tpl, extra) {
     if (!extra) return
     let pointer = instance.pointers.get(extra.pointer.id)
-
+    if (!pointer) {
+      return
+    }
     //Does the pointer currently hold a tree?
     if (pointer.tree) {
       //Make up a new tree identifier (they're sequential)
@@ -200,8 +203,7 @@ Template.show.events({
       //We're a pointer clicking on another pointer (the _pointee_)
       let pointeeId = event.target.getAttribute("pointer-id")
       let pointee = instance.pointers.get(pointeeId)
-      if(pointee.killable)
-      {
+      if (pointee.killable) {
         killAnimation(pointee)
         instance.pointers.set(pointee.id, pointee)
       }
@@ -242,7 +244,7 @@ Template.show.events({
       instance.adminPosition.set([event.pageX, event.pageY])
     }
     GlobalEvent.set(GlobalEvents.OUVRIR_LA_FNET)
-  }
+  },
 })
 
 simulateMouseUp = function (pointer) {
@@ -255,7 +257,7 @@ simulateMouseUp = function (pointer) {
 simulateMouseDown = function (pointer) {
   const elements = getElementsUnder(pointer)
   if (elements.length == 0) return
-  for(element of elements) {
+  for (element of elements) {
     // we need to restrict clicks on privileged buttons, like the admin buttons
     // so that only samuel can click on them.
     if (element.classList.contains("privileged") && pointer.id != "samuel") {
@@ -266,11 +268,10 @@ simulateMouseDown = function (pointer) {
     $(element).trigger("click", { pointer: pointer })
     element.classList.remove("clicked")
 
-    
     //TODO: figure out a better event propagation mechanism
     // Here's part of the issue: https://stackoverflow.com/questions/3277369/how-to-simulate-a-click-by-using-x-y-coordinates-in-javascript/78993824#78993824
     //QUICKFIX: privileged elements stop propagating a click event.
-    if (element.classList.contains("stops-events")) break;
+    if (element.classList.contains("stops-events")) break
   }
 }
 
@@ -344,7 +345,7 @@ function createPointer(id, bot = false) {
     locked: false,
     opacity: 1,
     tree: null,
-    killable: false
+    killable: false,
   }
 }
 function createBot(id) {
@@ -353,87 +354,87 @@ function createBot(id) {
 
 //Receives the text that finished displaying in the lettreur.
 //We can check what's displayed and react accordingly (eg launch a bot routine)
-TellShowWeFinishedDisplayingParagraph = function(text) {
-  switch(text) {
+TellShowWeFinishedDisplayingParagraph = function (text) {
+  switch (text) {
     // ACTE II
     case "Bonjour!":
-    // les joueureuses/bots apparaissent (fade in)
-      [...bots, ...players].forEach(p => {
+      // les joueureuses/bots apparaissent (fade in)
+      ;[...bots, ...players].forEach((p) => {
         pointer = instance.pointers.get(p.id)
         welcomeRoutine(pointer)
         instance.pointers.set(p.id, pointer)
       })
-    break;
-    case "Est-ce que vous pourriez vous rassembler devant moi?":  
-      [...bots].forEach(p => {
+      break
+    case "Est-ce que vous pourriez vous rassembler devant moi?":
+      ;[...bots].forEach((p) => {
         pointer = instance.pointers.get(p.id)
         regroupRoutine(pointer)
         instance.pointers.set(p.id, pointer)
       })
-    break;
+      break
     case "est-ce que vous pourriez essayer de faire un cercle autour de moi?":
-    [...bots].forEach(p => {
-      pointer = instance.pointers.get(p.id)
-      circleRoutine(pointer)
-      instance.pointers.set(p.id, pointer)
-    })
-    break;
-    case "peut-être que ce serait mieux? merci vous êtes sympas.":
-    // les joueureuses doivent faire un carré autour de samuel
-    [...bots].forEach(p => {
-      pointer = instance.pointers.get(p.id)
-      squareRoutine(pointer)
-      instance.pointers.set(p.id, pointer)
-    })
-    break;
-    case "au milieu j'ai mis le salaire net médian en 2022 à titre de comparaison.":
-    // les joueureuses doivent se mettre sur un axe en fonction de leurs revenus
-    [...bots].forEach(p => {
-      pointer = instance.pointers.get(p.id)
-      axisRoutine(pointer, {xMin: 200, xMax:instance.windowBoundaries.width-200, y:instance.windowBoundaries.height*0.46})
-      instance.pointers.set(p.id, pointer)
-    })
-    break;
-    case "du genre":
-    // les joueureuses doivent se mettre sur un axe en fonction de la dernière fois qu'iels ont mangé
-    [...bots].forEach(p => {
-      pointer = instance.pointers.get(p.id)
-      axisRoutine(pointer, {xMin: 200, xMax:instance.windowBoundaries.width-200, y:instance.windowBoundaries.height*0.73})
-      instance.pointers.set(p.id, pointer)
-    })
-    break;
-    case "ou alors je sais pas, pourquoi pas ça sinon":
-      [...bots].forEach(p => {
+      ;[...bots].forEach((p) => {
         pointer = instance.pointers.get(p.id)
-        graphRoutine(pointer, {xMin: instance.windowBoundaries.width * 0.25, xMax:instance.windowBoundaries.width * 0.75, yMin:instance.windowBoundaries.height*0.12, yMax:instance.windowBoundaries.height*0.77 })
+        circleRoutine(pointer)
         instance.pointers.set(p.id, pointer)
       })
-    break;
+      break
+    case "peut-être que ce serait mieux? merci vous êtes sympas.":
+      // les joueureuses doivent faire un carré autour de samuel
+      ;[...bots].forEach((p) => {
+        pointer = instance.pointers.get(p.id)
+        squareRoutine(pointer)
+        instance.pointers.set(p.id, pointer)
+      })
+      break
+    case "au milieu j'ai mis le salaire net médian en 2022 à titre de comparaison.":
+      // les joueureuses doivent se mettre sur un axe en fonction de leurs revenus
+      ;[...bots].forEach((p) => {
+        pointer = instance.pointers.get(p.id)
+        axisRoutine(pointer, { xMin: 200, xMax: instance.windowBoundaries.width - 200, y: instance.windowBoundaries.height * 0.46 })
+        instance.pointers.set(p.id, pointer)
+      })
+      break
+    case "du genre":
+      // les joueureuses doivent se mettre sur un axe en fonction de la dernière fois qu'iels ont mangé
+      ;[...bots].forEach((p) => {
+        pointer = instance.pointers.get(p.id)
+        axisRoutine(pointer, { xMin: 200, xMax: instance.windowBoundaries.width - 200, y: instance.windowBoundaries.height * 0.73 })
+        instance.pointers.set(p.id, pointer)
+      })
+      break
+    case "ou alors je sais pas, pourquoi pas ça sinon":
+      ;[...bots].forEach((p) => {
+        pointer = instance.pointers.get(p.id)
+        graphRoutine(pointer, { xMin: instance.windowBoundaries.width * 0.25, xMax: instance.windowBoundaries.width * 0.75, yMin: instance.windowBoundaries.height * 0.12, yMax: instance.windowBoundaries.height * 0.77 })
+        instance.pointers.set(p.id, pointer)
+      })
+      break
 
     case "hmmm":
       //Fin du minijeu de positionnement: les bots retournent à leur "maison"
-      [...bots].forEach(p => {
+      ;[...bots].forEach((p) => {
         pointer = instance.pointers.get(p.id)
-        pointer.events.push({type:"humanizedMove", from:null, to:pointer.homeCoords??{x:0,y:0}, duration:randomBetween(2000,3000)})
+        pointer.events.push({ type: "humanizedMove", from: null, to: pointer.homeCoords ?? { x: 0, y: 0 }, duration: randomBetween(2000, 3000) })
         instance.pointers.set(p.id, pointer)
-      });
-    break;
-  
+      })
+      break
+
     case "pour en revenir au pointeur de souris":
-      [...bots].forEach(p => {
+      ;[...bots].forEach((p) => {
         pointer = instance.pointers.get(p.id)
         playgroundRoutine(pointer)
         instance.pointers.set(p.id, pointer)
       })
-    break;
-  
-    break;
+      break
+
+      break
     case "cachez-vous parce que si j'arrive à vous toucher,":
-      [...bots].forEach(p => {
+      ;[...bots, ...players].forEach((p) => {
         pointer = instance.pointers.get(p.id)
         pointer.killable = true
         instance.pointers.set(p.id, pointer)
       })
-    break;
+      break
   }
 }
