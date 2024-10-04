@@ -30,7 +30,7 @@ Template.show.onCreated(function () {
   // ux state for windows
   this.isAdminOpen = new ReactiveVar(false)
   this.adminPosition = new ReactiveVar([0, 0])
-  this.whichBackground = new ReactiveVar(null)
+  this.whichBackground = new ReactiveVar("slate.png")
 
   // make instance callable from everywhere
   instance = this
@@ -45,7 +45,7 @@ Template.show.onCreated(function () {
 
   //Create 96 bots
   this.bots = [] //Keep the array of bots on hand, it's easier than filtering this.pointers every time
-  for (let i = 0; i < 96; i++) {
+  for (let i = 0; i < 1; i++) {
     let bot = createBot("bot" + i)
     this.pointers.set(bot.id, bot)
     bots.push(bot)
@@ -110,6 +110,15 @@ function handlePointerMessage(message) {
 }
 
 Template.show.helpers({
+  isItActe2s1() {
+    state = Template.instance().currentState.get()
+    if (state != "INITIAL" && state != "ACTE1s1" && state != "ACTE1s2" && state != "ACTE3s1") {
+      return true
+    } else {
+      return false
+    }
+  },
+
   areNamesHidden() {
     if (Template.instance().areNamesHidden.get() === true) {
       return "opacity-0"

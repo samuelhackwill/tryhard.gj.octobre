@@ -1,0 +1,14 @@
+<template name="bulle">
+  <div class="absolute flex h-full w-full items-center justify-center" id="bulleContainer">
+    <div class="flex relative rounded-3xl select-none bg-sky-100 p-16 min-h-44 w-[50rem] shadow-2xl transition-all duration-200 {{openOrClosed}}" id="bulle">
+      <!-- Profile Picture Container -->
+      <div class="flex items-center mr-4">
+        <img src="talking_cursor.gif" class="h-24 w-24" />
+      </div>
+      <!-- Text Content Container -->
+      <div class="flex items-center max-w-[80%]">{{>lettreur}}</div>
+    </div>
+  </div>
+
+  <span class="hidden fixed left-0 top-0 m-2 select-none rounded-md bg-amber-900 p-2 text-white">state : {{state}}</span>
+</template>

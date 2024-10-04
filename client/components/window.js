@@ -22,7 +22,7 @@ Template.windowAdmin.helpers({
       currentView = currentView.parentView
     }
 
-    console.log("is admin open? ", currentView.templateInstance().isAdminOpen.get())
+    // console.log("is admin open? ", currentView.templateInstance().isAdminOpen.get())
     if (currentView.templateInstance().isAdminOpen.get() === true) {
       return "transform: translate(-50%,-50%) scale3d(1, 1, 1);"
     } else {
@@ -48,7 +48,7 @@ Template.windowAdmin.helpers({
   },
 
   isSpecialButton() {
-    if (this == "LANCER_LE_SPECTACLE") {
+    if (this == "LANCER_LE_PLAYTEST") {
       return true
     } else {
       return false
@@ -87,8 +87,8 @@ Template.windowAdmin.events({
     buttonId = String(this)
     GlobalEvent.set(buttonId)
 
-    if (captchaSolved.get() == true && buttonId == "LANCER_LE_SPECTACLE") {
-      GlobalEvent.set(GlobalEvents.VRAIMENT_LANCER_LE_SPECTACLE)
+    if (captchaSolved.get() == true && buttonId == "LANCER_LE_PLAYTEST") {
+      GlobalEvent.set(GlobalEvents.VRAIMENT_LANCER_LE_PLAYTEST)
     }
   },
 })

@@ -11,8 +11,8 @@ Template.background.helpers({
       currentView = currentView.parentView
     }
 
-    if (currentView.templateInstance().whichBackground.get() == null) {
-      return false
+    if (currentView.templateInstance().whichBackground.get() == "graphe_revenus_vs_repas.png") {
+      return "background-size : contain; background-image:url('./backgrounds/" + currentView.templateInstance().whichBackground.get() + "');"
     } else {
       return "background-image:url('./backgrounds/" + currentView.templateInstance().whichBackground.get() + "');"
     }

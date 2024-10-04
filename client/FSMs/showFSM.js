@@ -22,27 +22,25 @@ export const states = {
   ACTE2s4: "ACTE2s4",
   // les joueureuses doivent se placer sur un graphe
 
-  CUT: "CUT",
-  // CUT
-
   ACTE3s1: "ACTE3s1",
   // samuel parle de (sapin) douglas englebart pendant que les joueureuses plantent des arbres
   ACTE3s2: "ACTE3s2",
-  // samuel dit que c'est fini et maintenant il va tuer tout le monde donc cachez vous bien.
+  // samuel dit que c'est fini et maintenant il a le pouvoir de tuer tout le monde donc cachez vous bien.
 
   // fin
 }
 
 export const events = {
   // this data is consumed by the windowAdmin helper which uses the VALUES of the events to make buttons for the admin. samuel se sert de ces boutons pour passer d'une scène à une autre.
-  REDÉMARRER: "REDÉMARRER",
-  LANCER_LE_SPECTACLE: "LANCER_LE_SPECTACLE",
+  LANCER_LE_PLAYTEST: "LANCER_LE_PLAYTEST",
   OUVRIR_LA_FNET: "OUVRIR_LA_FNET",
-  VRAIMENT_LANCER_LE_SPECTACLE: "VRAIMENT_LANCER_LE_SPECTACLE",
+  VRAIMENT_LANCER_LE_PLAYTEST: "VRAIMENT_LANCER_LE_PLAYTEST",
   MONTRER_LE_NOM_DES_CURSEURS: "MONTRER_LE_NOM_DES_CURSEURS",
   GO_TO_INSEE: "GO_TO_INSEE",
   GO_TO_JOEL_ROBUCHON: "GO_TO_JOEL_ROBUCHON",
   GO_TO_GRAPHE: "GO_TO_GRAPHE",
+  BREAK: "BREAK",
+  HIDE_N_SEEK: "HIDE_N_SEEK",
 }
 
 export const transition = function (event, instance) {
@@ -72,10 +70,10 @@ export const transition = function (event, instance) {
       break
 
     case "ACTE1s1":
-      if (event === events.LANCER_LE_SPECTACLE) {
+      if (event === events.LANCER_LE_PLAYTEST) {
         instance.currentState.set(states.ACTE1s2)
       }
-      if (event === events.VRAIMENT_LANCER_LE_SPECTACLE) {
+      if (event === events.VRAIMENT_LANCER_LE_PLAYTEST) {
         instance.currentState.set(states.ACTE2s1)
         triggers.onEnterActe1s2(instance)
       }
@@ -83,7 +81,7 @@ export const transition = function (event, instance) {
       break
 
     case "ACTE1s2":
-      if (event === events.VRAIMENT_LANCER_LE_SPECTACLE) {
+      if (event === events.VRAIMENT_LANCER_LE_PLAYTEST) {
         instance.currentState.set(states.ACTE2s1)
         triggers.onEnterActe1s2(instance)
       }
@@ -109,12 +107,29 @@ export const transition = function (event, instance) {
         triggers.onEnterActe2s4(instance)
       }
       break
+
+    case "ACTE2s3":
+      if (event === events.GO_TO_GRAPHE) {
+        instance.currentState.set(states.ACTE2s4)
+        triggers.onEnterActe2s4(instance)
+      }
+      break
+
+    case "ACTE2s4":
+      if (event === events.BREAK) {
+        instance.currentState.set(states.BREAK)
+        triggers.onEnterBreak(instance)
+      }
+      break
   }
 }
 
 export const triggers = {
   onEnterActe1s2: function (instance) {
     instance.isAdminOpen.set(false)
+  },
+  onEnterActe2s2: function (instance) {
+    // donner la parole à samuel (click event on body to cycle through samuelese)
   },
   onEnterActe2s2: function (instance) {
     instance.whichBackground.set("axe_revenus.png")
@@ -124,5 +139,13 @@ export const triggers = {
   },
   onEnterActe2s4: function (instance) {
     instance.whichBackground.set("graphe_revenus_vs_repas.png")
+  },
+  onEnterBreak: function (instance) {
+    instance.whichBackground.set("slate.png")
+  },
+  onEnterHideNSeek: function (instance) {
+    // il parle plus
+    // ok samuel peut tuer tout le monde maintenant
+    // instance.whichBackground.set("slate.png")
   },
 }

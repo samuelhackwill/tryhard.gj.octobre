@@ -1,5 +1,5 @@
 <template name="show">
-  <div class="backgroundContainer w-full h-full absolute top-0 left-0">{{>background}} {{>folderVestiaire}} {{>folderAdmin}} {{>folderTrees x=1000 y=100}} {{>plusminus}}</div>
+  <div class="backgroundContainer w-full h-full absolute top-0 left-0">{{>background}} {{>folderVestiaire}} {{>folderAdmin}} {{>folderTrees x=1000 y=100}} {{>plusminus}} {{#if isItActe2s1}} {{>bulle}} {{/if}}</div>
 
   <div class="milieuContainer">
     {{#each allPointers getAdmin=false}}
