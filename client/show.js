@@ -181,7 +181,7 @@ Template.show.events({
   },
   "click button"() {
     // note that the REAL pointer of localhost will be able to natively trigger this event as well as simulated clicks. (which is good for testing i guess)
-    console.log("SHOW.JS button clicked. ", this)
+    //console.log("SHOW.JS button clicked. ", this)
   },
   "click .pointer"(event, tpl, extra) {
     //Boss "kill on click" behaviour
@@ -189,8 +189,11 @@ Template.show.events({
       //We're a pointer clicking on another pointer (the _pointee_)
       let pointeeId = event.target.getAttribute("pointer-id")
       let pointee = instance.pointers.get(pointeeId)
-      killAnimation(pointee)
-      instance.pointers.set(pointee.id, pointee)
+      if(pointee.killable)
+      {
+        killAnimation(pointee)
+        instance.pointers.set(pointee.id, pointee)
+      }
     }
   },
   "click #folderVestiaire"(event, tpl, extra) {
@@ -242,7 +245,6 @@ simulateMouseDown = function (pointer) {
   const elements = getElementsUnder(pointer)
   if (elements.length == 0) return
   for(element of elements) {
-    console.log(element)
     // we need to restrict clicks on privileged buttons, like the admin buttons
     // so that only samuel can click on them.
     if (element.classList.contains("privileged") && pointer.id != "samuel") {
@@ -331,6 +333,7 @@ function createPointer(id, bot = false) {
     locked: false,
     opacity: 1,
     tree: null,
+    killable: false
   }
 }
 function createBot(id) {
