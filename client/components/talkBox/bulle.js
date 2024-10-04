@@ -120,10 +120,10 @@ const transition = function (event, instance) {
 
     case "FINISHED":
       if (event === Events.CLICK) {
-        alert("Text is finished mate. You can restart if you want")
-        instance.currentState.set(States.INITIAL)
-        onEnterInitial(instance)
-        GlobalEvent.set(GlobalEvents.RESTART)
+        //alert("Text is finished mate. You can restart if you want")
+        //instance.currentState.set(States.INITIAL)
+        //onEnterInitial(instance)
+        //GlobalEvent.set(GlobalEvents.RESTART)
       }
       break
   }
