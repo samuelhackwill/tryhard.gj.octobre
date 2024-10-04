@@ -1,7 +1,7 @@
 <template name="window"> </template>
 
 <template name="windowAdmin">
-  <div id="AdminContainer" class="max-w-[45vw] max-h-[85vh] relative duration-200 bg-slate-200 p-6 rounded-md border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg" style="{{isAdminOpen}} {{getPos}}">
+  <div id="AdminContainer" class="stops-events max-w-[45vw] max-h-[85vh] relative duration-200 bg-slate-200 p-6 rounded-md border-2 border-blue-300 text-gray-700 drop-shadow-2xl text-lg" style="{{isAdminOpen}} {{getPos}}">
     <div id="statepannel" class="opacity-50 mb-2">
       <span>current state : <span class="bg-blue-200 p-1 rounded-xl">{{this.currentState}}</span></span>
       <span>current globalEvent : <span class="bg-red-200 p-1 rounded-xl">{{getGlobalEvent}}</span></span>

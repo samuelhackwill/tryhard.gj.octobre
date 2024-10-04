@@ -241,7 +241,8 @@ simulateMouseUp = function (pointer) {
 simulateMouseDown = function (pointer) {
   const elements = getElementsUnder(pointer)
   if (elements.length == 0) return
-  elements.forEach((element) => {
+  for(element of elements) {
+    console.log(element)
     // we need to restrict clicks on privileged buttons, like the admin buttons
     // so that only samuel can click on them.
     if (element.classList.contains("privileged") && pointer.id != "samuel") {
@@ -251,7 +252,13 @@ simulateMouseDown = function (pointer) {
     //Trigger a jQuery click event with extra data (the pointer)
     $(element).trigger("click", { pointer: pointer })
     element.classList.remove("clicked")
-  })
+
+    
+    //TODO: figure out a better event propagation mechanism
+    // Here's part of the issue: https://stackoverflow.com/questions/3277369/how-to-simulate-a-click-by-using-x-y-coordinates-in-javascript/78993824#78993824
+    //QUICKFIX: privileged elements stop propagating a click event.
+    if (element.classList.contains("stops-events")) break;
+  }
 }
 
 function getElementsUnder(pointer) {
