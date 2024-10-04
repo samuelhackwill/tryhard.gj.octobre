@@ -35,7 +35,7 @@ Template.lettreur.onCreated(function helloOnCreated() {
 
 Template.lettreur.onRendered(function () {
   const instance = this // Store the Template instance
-  $("body").on("click.lettreur", function (event, extra) {
+  $("body .backgroundContainer").on("click.lettreur", function (event, extra) {
     // ok so as i really don't get what's going on here
     // probably because of meteor reactivity and the destroy function
     // not working properly, i'm just going to debounce the
