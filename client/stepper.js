@@ -46,7 +46,11 @@ function stepEventQueue(pointer) {
   let t
   if(event.duration) {
     t = event.elapsed/event.duration
-  } else 
+  } else if(event.type == "wait") {
+    //Special case: wait events without a duration are infinite
+    event.elapsed = -1
+    event.duration = 0
+  } else
   {
     //Special case: events without a duration are instantaneous
     //Consider the animation over
